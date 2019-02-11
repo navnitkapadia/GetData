@@ -1,0 +1,101 @@
+<html>
+
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+    <title>Example of plotting live data with websockets and highcharts</title>
+    <script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1.8.2/jquery.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/paho-mqtt/1.0.1/mqttws31.min.js" type="text/javascript"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.4.0/Chart.min.js"></script>
+    <script type="text/javascript">
+        //var MQTTbroker = 'test.mosquitto.org';
+        //var MQTTport = 8080;
+        //var MQTTsubTopic = 'meriat/sala1/#'; //works with wildcard # and + topics dynamically now
+        var MQTTbroker = 'iot.eclipse.org';
+        var MQTTport = 80;
+        var MQTTsubTopic = 'mydevice';
+        var maxDataPoints = 20;
+        var chart; // global variuable for chart
+        // var dataTopics = new Array();
+        var dataPlot;
+        //mqtt broker
+        var client = new Paho.MQTT.Client(MQTTbroker, MQTTport,
+            "myclientid_" + parseInt(Math.random() * 100, 10));
+        client.onMessageArrived = onMessageArrived;
+        client.onConnectionLost = onConnectionLost;
+
+        //mqtt connecton options including the mqtt broker subscriptions
+        var options = {
+            timeout: 3,
+            onSuccess: function () {
+                console.log("mqtt connected");
+                // Connection succeeded; subscribe to our topics
+                client.subscribe(MQTTsubTopic, { qos: 1 });
+            },
+            onFailure: function (message) {
+                console.log("Connection failed, ERROR: " + message.errorMessage);
+                //window.setTimeout(location.reload(),20000); //wait 20seconds before trying to connect again.
+            }
+        };
+        //can be used to reconnect on connection lost
+        function onConnectionLost(responseObject) {
+            console.log("connection lost: " + responseObject.errorMessage);
+            //window.setTimeout(location.reload(),20000); //wait 20seconds before trying to connect again.
+        };
+        function addData(label, data){
+            if(dataPlot.data.labels.length > maxDataPoints){
+                removeData();
+            }
+            dataPlot.data.labels.push(label);
+            dataPlot.data.datasets[0].data.push(data);
+            dataPlot.update();
+        }
+        function removeData(){
+            dataPlot.data.labels.shift();
+            dataPlot.data.datasets[0].data.shift();
+        }
+        //what is done when a message arrives from the broker
+        function onMessageArrived(message) {
+            console.log(message.destinationName, '', message.payloadString);
+            var data = JSON.parse(message.payloadString);
+            var today = new Date();
+            var t= today.getHours() + ":" + today.getMinutes() + ":" + today.getSeconds();
+            addData(t, data.value);
+            console.log(data);
+        };
+        //check if a real number
+        function isNumber(n) {
+            return !isNaN(parseFloat(n)) && isFinite(n);
+        };
+        //function that is called once the document has loaded
+        function init() {
+            // Connect to MQTT broker
+            client.connect(options);
+            dataPlot = new Chart(document.getElementById('line-chart'), {
+                type: 'line',
+                data: {
+                    lables: [],
+                    datasets: [{
+                        data: [],
+                        label: "Temperature (c)",
+                        borderColor: '#3e95cd',
+                        fill: false
+                    }]
+                }
+            })
+        };
+    </script>
+
+</head>
+
+<body>
+
+    <body onload="init();">
+            <div style="height: 350px;
+            width: 500px">
+                <canvas id="line-chart" width="800" height="450"></canvas>
+                
+        </div>
+        <!--Start the javascript ball rolling and connect to the mqtt broker-->
+    </body>
+
+</html>

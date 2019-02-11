@@ -1,0 +1,13 @@
+export const GET_ERRORS = "GET_ERRORS";
+export const USER_LOADING = "USER_LOADING";
+export const SET_CURRENT_USER = "SET_CURRENT_USER";
+export const GET_CHART_DATA = "GET_CHART_DATA";
+export const GET_USERS = "GET_USERS";
+export const APPROVE_USER = "APPROVE_USER";
+export const MQTT_INIT = "MQTT_INIT";
+export const MQTT_CONNECTION_LOST = "MQTT_CONNECTION_LOST";
+export const MQTT_MESSAGE_RECEIVED = "MQTT_MESSAGE_RECEIVED";
+export const SENSOR_1 = "SENSOR_1"
+export const SENSOR_2 = "SENSOR_2"
+export const SENSOR_3 = "SENSOR_3"
+export const SENSOR_4 = "SENSOR_4"
