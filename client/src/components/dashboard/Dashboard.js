@@ -18,7 +18,7 @@ class Dashboard extends Component {
   }
 
   componentDidMount() {
-    this.connectMqtt();
+    //this.connectMqtt();
     var myChart1 = new Chart(document.getElementById("lineChart1").getContext("2d"), {
       type: 'line',
       data: {
