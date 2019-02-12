@@ -5,7 +5,7 @@ import { logoutUser } from "../../actions/authActions";
 import { getChartData } from "../../actions/getActions";
 import * as Chart from 'chart.js';
 import * as Paho from 'paho-mqtt';
-
+import { connectSocket } from './socketConnection';
 class Dashboard extends Component {
   constructor(props) {
     super(props);
@@ -83,10 +83,14 @@ class Dashboard extends Component {
       }
     });
     this.setState({ myChart4: myChart4 });
+
+    connectSocket((message) =>{
+      this.onMessageArrived(message);
+    })
   }
   //what is done when a message arrives from the broker
   onMessageArrived(message) {
-    var data = JSON.parse(message.payloadString);
+    var data = JSON.parse(message);
     var today = new Date();
     var t = today.getHours() + ":" + today.getMinutes() + ":" + today.getSeconds();
     if (data.id === "Sensor 1") {
@@ -106,7 +110,7 @@ class Dashboard extends Component {
       this.addData(this.state.myChart4,t,data.value);
     }
   };
-
+  
   addData(chart, label, value) {
     if(Object.keys(chart).length === 0){
       return;
@@ -140,7 +144,6 @@ class Dashboard extends Component {
     var options = {
       timeout: 3,
       onSuccess: function () {
-        console.log("mqtt connected");
         // Connection succeeded; subscribe to our topics
         client.subscribe(MQTTsubTopic, { qos: 1 });
       },
