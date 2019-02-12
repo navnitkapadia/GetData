@@ -1,5 +1,5 @@
 {
-  "name": "mern-auth",
+  "name": "get-data",
   "version": "1.0.0",
   "description": "Mern Auth Example",
   "main": "server.js",
@@ -19,9 +19,10 @@
     "concurrently": "^4.0.1",
     "express": "^4.16.4",
     "is-empty": "^1.2.0",
-    "mongoose": "^4.4.20",
     "jsonwebtoken": "^8.3.0",
+    "mongoose": "^4.4.20",
     "mqtt-react": "0.0.3",
+    "nodemon": "^1.18.10",
     "passport": "^0.4.0",
     "passport-jwt": "^4.0.0",
     "react-materialize": "^2.6.0",
