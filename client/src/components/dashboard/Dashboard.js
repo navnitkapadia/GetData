@@ -4,7 +4,6 @@ import { connect } from "react-redux";
 import { logoutUser } from "../../actions/authActions";
 import { getChartData } from "../../actions/getActions";
 import * as Chart from 'chart.js';
-import * as Paho from 'paho-mqtt';
 import { connectSocket } from './socketConnection';
 class Dashboard extends Component {
   constructor(props) {
@@ -18,7 +17,6 @@ class Dashboard extends Component {
   }
 
   componentDidMount() {
-    //this.connectMqtt();
     var myChart1 = new Chart(document.getElementById("lineChart1").getContext("2d"), {
       type: 'line',
       data: {
@@ -44,7 +42,7 @@ class Dashboard extends Component {
         }]
       }
     });
-    this.setState({ myChart1: myChart2 })
+    this.setState({ myChart2: myChart2 })
     var myChart3 = new Chart(document.getElementById("lineChart3").getContext("2d"), {
       type: 'line',
       data: {
@@ -130,30 +128,6 @@ class Dashboard extends Component {
     console.log("connection lost: " + responseObject.errorMessage);
   };
 
-  connectMqtt() {
-    var MQTTbroker = 'iot.eclipse.org';
-    var MQTTport = 80;
-    var MQTTsubTopic = 'mydevice';
-    //mqtt broker
-    var client = new Paho.Client(MQTTbroker, MQTTport,
-      "myclientid_" + parseInt(Math.random() * 100, 10));
-    client.onMessageArrived = this.onMessageArrived.bind(this);
-    client.onConnectionLost = this.onConnectionLost.bind(this);
-
-    //mqtt connecton options including the mqtt broker subscriptions
-    var options = {
-      timeout: 3,
-      onSuccess: function () {
-        // Connection succeeded; subscribe to our topics
-        client.subscribe(MQTTsubTopic, { qos: 1 });
-      },
-      onFailure: function (message) {
-        console.log("Connection failed, ERROR: " + message.errorMessage);
-        //window.setTimeout(location.reload(),20000); //wait 20seconds before trying to connect again.
-      }
-    };
-    client.connect(options);
-  }
   static defaultProps = {
     displayTitle: true,
     displayLegend: false,
