@@ -6,7 +6,6 @@ import { getChartData } from "../../actions/getActions";
 import * as Chart from 'chart.js';
 import * as Paho from 'paho-mqtt';
 
-
 class Dashboard extends Component {
   constructor(props) {
     super(props);
@@ -19,7 +18,6 @@ class Dashboard extends Component {
   }
 
   componentDidMount() {
-    // this.props.getChartData();
     this.connectMqtt();
     var myChart1 = new Chart(document.getElementById("lineChart1").getContext("2d"), {
       type: 'line',
@@ -93,28 +91,32 @@ class Dashboard extends Component {
     var t = today.getHours() + ":" + today.getMinutes() + ":" + today.getSeconds();
     if (data.id === "Sensor 1") {
       this.removeData(this.state.myChart1);
-      this.addData(this.state.myChart1,t,data);
+      this.addData(this.state.myChart1,t,data.value);
     }
     if (data.id === "Sensor 2") {
       this.removeData(this.state.myChart2);
-      this.addData(this.state.myChart2,t,data);
+      this.addData(this.state.myChart2,t,data.value);
     }
     if (data.id === "Sensor 3") {
       this.removeData(this.state.myChart3);
-      this.addData(this.state.myChart3,t,data);
+      this.addData(this.state.myChart3,t,data.value);
     }
     if (data.id === "Sensor 4") {
       this.removeData(this.state.myChart4);
-      this.addData(this.state.myChart4,t,data);
+      this.addData(this.state.myChart4,t,data.value);
     }
   };
 
   addData(chart, label, value) {
-    chart.data.labels.push(label);
-    chart.data.datasets[0].data.push(value);
+    if(Object.keys(chart).length === 0){
+      return;
+    }
+    chart && chart.data && chart.data.labels && chart.data.labels.push(label);
+    chart &&  chart.data && chart.data.datasets && chart.data.datasets[0] && chart.data.datasets[0].data.push(value);
+    chart && chart.update();
   }
   removeData(chart) {
-    if (chart && chart.data && chart.data.labels.length > 10) {
+    if (chart && chart.data && chart.data.labels && chart.data.labels.length > 10) {
       chart.data.labels.shift();
       chart.data.datasets[0].data.shift();
     }
