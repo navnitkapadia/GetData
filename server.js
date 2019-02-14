@@ -11,7 +11,7 @@ const io = require('socket.io')(http);
 
 const mqtt = require('mqtt');
 var client = mqtt.connect('mqtt://iot.eclipse.org');
-
+const Chart = require("./models/Chart");
 // Bodyparser middleware
 app.use(
   bodyParser.urlencoded({
@@ -35,7 +35,19 @@ client.on('connect', function () {
 });
 
 client.on('message', function (topic, message) {
-  socket.emit('chart', message.toString());
+  var message = JSON.parse(message);
+  // const newChart = new Chart({
+  //   sensorId: message.id,
+  //   value: message.value,
+  //   lat: message.lat,
+  //   lng:  message.lng,
+  //   unit: message.unit,
+  //   type: message.type,
+  //   description: message.description
+  // });
+  // newChart.save().then(newChart => console.log('Successfully added'))
+  // .catch(err => console.log(err));
+   socket.emit('chart', message.toString());
 });
 
 // DB Config
@@ -61,10 +73,10 @@ app.use("/api/users", users);
 app.use("/api/charts", charts);
 
 // Serve statics assets if in production
-app.use(express.static('client/build'));
-app.get('*', (req, res) => {
-  res.sendFile(path.resolve(__dirname, 'client/build','index.html'));
-})
+// app.use(express.static('client/build'));
+// app.get('*', (req, res) => {
+//   res.sendFile(path.resolve(__dirname, 'client/build','index.html'));
+// })
  
 const port = process.env.PORT || 5000;
 
