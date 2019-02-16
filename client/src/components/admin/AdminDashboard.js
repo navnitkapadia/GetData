@@ -18,6 +18,9 @@ import Typography from '@material-ui/core/Typography';
 import { withStyles } from '@material-ui/core/styles';
 import { connect } from "react-redux";
 import { getUsers } from "../../actions/getActions";
+import Avatar from '@material-ui/core/Avatar';
+import ListItemAvatar from '@material-ui/core/ListItemAvatar';
+import FolderIcon from '@material-ui/icons/Folder'
 import { logoutUser, approveUser } from "../../actions/authActions";
 import ListItemSecondaryAction from '@material-ui/core/ListItemSecondaryAction';
 
@@ -26,6 +29,7 @@ const drawerWidth = 240;
 const styles = theme => ({
   root: {
     display: 'flex',
+    backgroundColor: '#eeeeee'
   },
   listStyle: {
     backgroundColor: theme.palette.background.paper
@@ -102,7 +106,12 @@ class AdminDashboard extends React.Component {
     if (this.props && this.props.users) {
       list = this.props.users.map(({ _id, name }) => {
         return <ListItem key={_id} button>
-          <ListItemText inset primary={name} />
+          <ListItemAvatar>
+            <Avatar> 
+              <FolderIcon />
+            </Avatar>
+          </ListItemAvatar>
+          <ListItemText primary={name} />
           <ListItemSecondaryAction>
             <IconButton onClick={this.onApproveClick.bind(this, _id)}>
               <Done className="icon-button" />

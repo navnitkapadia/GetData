@@ -2,9 +2,25 @@ import React, { Component } from "react";
 import PropTypes from "prop-types";
 import { connect } from "react-redux";
 import { logoutUser } from "../../actions/authActions";
-import { getChartData } from "../../actions/getActions";
 import * as Chart from 'chart.js';
 import { connectSocket } from './socketConnection';
+import { withStyles } from '@material-ui/core/styles';
+import  MasterChart  from './MasterChart';
+import '@vaadin/vaadin-date-picker/vaadin-date-picker.js';
+
+const styles = theme => ({
+  root: {
+    display: 'flex',
+    flexWrap: 'wrap',
+  },
+  formControl: {
+    margin: theme.spacing.unit,
+    minWidth: 120,
+  },
+  selectEmpty: {
+    marginTop: theme.spacing.unit * 2,
+  },
+});
 class Dashboard extends Component {
   constructor(props) {
     super(props);
@@ -15,7 +31,6 @@ class Dashboard extends Component {
       myChart4: {}
     };
   }
-
   componentDidMount() {
     var myChart1 = new Chart(document.getElementById("lineChart1").getContext("2d"), {
       type: 'line',
@@ -27,7 +42,7 @@ class Dashboard extends Component {
           borderColor: '#3e95cd',
           fill: false
         }]
-      }
+      },
     });
     this.setState({ myChart1: myChart1 })
     var myChart2 = new Chart(document.getElementById("lineChart2").getContext("2d"), {
@@ -82,7 +97,7 @@ class Dashboard extends Component {
     });
     this.setState({ myChart4: myChart4 });
 
-    connectSocket((message) =>{
+    connectSocket((message) => {
       this.onMessageArrived(message);
     })
   }
@@ -93,28 +108,28 @@ class Dashboard extends Component {
     var t = today.getHours() + ":" + today.getMinutes() + ":" + today.getSeconds();
     if (data.id === "Sensor 1") {
       this.removeData(this.state.myChart1);
-      this.addData(this.state.myChart1,t,data.value);
+      this.addData(this.state.myChart1, t, data.value);
     }
     if (data.id === "Sensor 2") {
       this.removeData(this.state.myChart2);
-      this.addData(this.state.myChart2,t,data.value);
+      this.addData(this.state.myChart2, t, data.value);
     }
     if (data.id === "Sensor 3") {
       this.removeData(this.state.myChart3);
-      this.addData(this.state.myChart3,t,data.value);
+      this.addData(this.state.myChart3, t, data.value);
     }
     if (data.id === "Sensor 4") {
       this.removeData(this.state.myChart4);
-      this.addData(this.state.myChart4,t,data.value);
+      this.addData(this.state.myChart4, t, data.value);
     }
   };
-  
+
   addData(chart, label, value) {
-    if(Object.keys(chart).length === 0){
+    if (Object.keys(chart).length === 0) {
       return;
     }
     chart && chart.data && chart.data.labels && chart.data.labels.push(label);
-    chart &&  chart.data && chart.data.datasets && chart.data.datasets[0] && chart.data.datasets[0].data.push(value);
+    chart && chart.data && chart.data.datasets && chart.data.datasets[0] && chart.data.datasets[0].data.push(value);
     chart && chart.update();
   }
   removeData(chart) {
@@ -160,23 +175,22 @@ class Dashboard extends Component {
             </div>
           </div>
         </div>
+        <MasterChart />
       </div>
     );
   }
 }
 
 Dashboard.propTypes = {
-  getChartData: PropTypes.func.isRequired,
   logoutUser: PropTypes.func.isRequired,
   auth: PropTypes.object.isRequired
 };
 
 const mapStateToProps = state => ({
-  auth: state.auth,
-  chartData: state.get.chartData
+  auth: state.auth
 });
 
 export default connect(
   mapStateToProps,
-  { getChartData, logoutUser }
-)(Dashboard);
+  { logoutUser }
+)(withStyles(styles, { withTheme: true })(Dashboard));

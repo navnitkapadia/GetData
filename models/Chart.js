@@ -3,24 +3,32 @@ const Schema = mongoose.Schema;
 
 // Create Schema
 const ChartSchema = new Schema({
-  labels: {
-    type: Array,
-    required: true
-  },
-  datasets: {
+  sensorId: {
     type: String,
     required: true
   },
-  password: {
-    type: String,
-    required: true
-  },
-  role: {
+  value: {
     type: Number,
     required: true
   },
-  isApproved: {
+  lat: {
+    type: Number,
+    required: true
+  },
+  lng: {
+    type: Number,
+    required: true
+  },
+  unit: {
     type: Boolean,
+    required: true
+  },
+  type: {
+    type: String,
+    required: true
+  },
+  description: {
+    type: String,
     required: true
   },
   date: {
