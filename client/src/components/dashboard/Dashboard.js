@@ -2,15 +2,10 @@ import React, { Component } from "react";
 import PropTypes from "prop-types";
 import { connect } from "react-redux";
 import { logoutUser } from "../../actions/authActions";
-import { getChartData } from "../../actions/getActions";
 import * as Chart from 'chart.js';
-import * as zoom from 'chartjs-plugin-zoom'
 import { connectSocket } from './socketConnection';
-import InputLabel from '@material-ui/core/InputLabel';
-import MenuItem from '@material-ui/core/MenuItem';
-import FormControl from '@material-ui/core/FormControl';
-import Select from '@material-ui/core/Select';
 import { withStyles } from '@material-ui/core/styles';
+import  MasterChart  from './MasterChart';
 import '@vaadin/vaadin-date-picker/vaadin-date-picker.js';
 
 const styles = theme => ({
@@ -33,102 +28,10 @@ class Dashboard extends Component {
       myChart1: {},
       myChart2: {},
       myChart3: {},
-      myChart4: {},
-      activeSensor: '',
-      mainChart: {}
+      myChart4: {}
     };
   }
-  // shouldComponentUpdate ( nextProps, nextState ) {
-  //   console.log( '[UPDATE App.js] Inside shouldComponentUpdate', nextProps, nextState );
-  // }
-  componentWillReceiveProps(nextProps) {
-    console.log(this.props.chartData);
-    // You don't have to do this check first, but it can help prevent an unneeded render
-    if (nextProps.chartData) {
-      var config = {
-        data: {
-          datasets: [
-            {
-              label: "Dataset with point data",
-              data: [],
-              fill: false
-            }
-          ]
-        },
-      };
-      var data=[];
-      nextProps.chartData.forEach(function(item) {
-        data.push({
-            x: new Date(item.date).getTime(),
-            y: item.value
-          })
-      });
-      this.state.mainChart.data.datasets[0].data = data;
-      this.state.mainChart.update();
-      console.log(nextProps.chartData)
-    }
-  }
   componentDidMount() {
-    this.dateListener();
-    var mainChart = new Chart(document.getElementById("lineChart5").getContext("2d"), {
-      type: 'line',
-      data: {
-        datasets: [{
-          label: "Dataset with point data",
-          data: []
-        }]
-      },
-      options: {
-        responsive: true,
-        title: {
-          display: true,
-          text: "Chart.js Time Scale"
-        },
-        scales: {
-          xAxes: [
-            {
-              type: "time",
-              time: {
-                format: 'MM/DD/YYYY HH:mm',
-                // round: 'day'
-                tooltipFormat: "ll HH:mm"
-              },
-              scaleLabel: {
-                display: true,
-                labelString: "Date"
-              },
-              ticks: {
-                maxRotation: 0
-              }
-            }
-          ],
-          yAxes: [
-            {
-              scaleLabel: {
-                display: true,
-                labelString: "value"
-              }
-            }
-          ]
-        },
-        pan: {
-          enabled: true,
-          mode: "x",
-          speed: 10,
-          threshold: 10
-        },
-        zoom: {
-          enabled: true,
-          drag: false,
-          mode: "xy",
-          limits: {
-            max: 10,
-            min: 0.5
-          }
-        }
-      }
-    });
-    this.setState({mainChart: mainChart})
     var myChart1 = new Chart(document.getElementById("lineChart1").getContext("2d"), {
       type: 'line',
       data: {
@@ -240,44 +143,12 @@ class Dashboard extends Component {
     console.log("connection lost: " + responseObject.errorMessage);
   };
 
-  handleChange(e) {
-    this.setState({ activeSensor: e.target.value })
-    this.callChartApi();
-  };
-  dateListener() {
-    var self = this;
-    var start = this.refs.startDate;
-    var end = this.refs.endtDate;
-    start.addEventListener('change', function () {
-      end.min = start.value;
-
-      // Open the second date picker when the user has selected a value
-      if (start.value) {
-        end.open();
-      }
-    });
-
-    end.addEventListener('change', function () {
-      start.max = end.value;
-      self.callChartApi();
-    });
-  }
-  callChartApi() {
-    var sensorId = this.state.activeSensor;
-    var start = this.refs.startDate.value;
-    var end = this.refs.endtDate.value;
-    if (!sensorId) {
-      return;
-    }
-    this.props.getChartData(sensorId, start, end)
-  }
   static defaultProps = {
     displayTitle: true,
     displayLegend: false,
     legendPosition: 'right'
   }
   render() {
-    const { classes } = this.props;
     return (
       <div className="container">
         <div className="row">
@@ -304,48 +175,22 @@ class Dashboard extends Component {
             </div>
           </div>
         </div>
-        <div className="row">
-          <FormControl className={classes.formControl}>
-            <InputLabel htmlFor="age-simple">Select Chart</InputLabel>
-            <Select
-              value={this.state.activeSensor}
-              onChange={(e) => this.handleChange(e)}>
-              <MenuItem value="">
-                <em>None</em>
-              </MenuItem>
-              <MenuItem value="Sensor 1">Sensor 1</MenuItem>
-              <MenuItem value='Sensor 2'>Sensor 2</MenuItem>
-              <MenuItem value='Sensor 3'>Sensor 3</MenuItem>
-              <MenuItem value='Sensor 4'>Sensor 4</MenuItem>
-            </Select>
-          </FormControl>
-          <vaadin-date-picker id="start" label="Start" ref="startDate"></vaadin-date-picker>
-          <vaadin-date-picker id="end" label="End" ref="endtDate"></vaadin-date-picker>
-        </div>
-        <div className="row">
-          <div className="col s12 m12 l12">
-            <div className="card">
-              <canvas id="lineChart5"></canvas>
-            </div>
-          </div>
-        </div>
+        <MasterChart />
       </div>
     );
   }
 }
 
 Dashboard.propTypes = {
-  getChartData: PropTypes.func.isRequired,
   logoutUser: PropTypes.func.isRequired,
   auth: PropTypes.object.isRequired
 };
 
 const mapStateToProps = state => ({
-  auth: state.auth,
-  chartData: state.get.chartData
+  auth: state.auth
 });
 
 export default connect(
   mapStateToProps,
-  { getChartData, logoutUser }
+  { logoutUser }
 )(withStyles(styles, { withTheme: true })(Dashboard));

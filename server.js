@@ -36,17 +36,17 @@ client.on('connect', function () {
 
 client.on('message', function (topic, message) {
   var message = JSON.parse(message);
-  // const newChart = new Chart({
-  //   sensorId: message.id,
-  //   value: message.value,
-  //   lat: message.lat,
-  //   lng:  message.lng,
-  //   unit: message.unit,
-  //   type: message.type,
-  //   description: message.description
-  // });
-  // newChart.save().then(newChart => console.log('Successfully added'))
-  // .catch(err => console.log(err));
+  const newChart = new Chart({
+    sensorId: message.id,
+    value: message.value,
+    lat: message.lat,
+    lng:  message.lng,
+    unit: message.unit,
+    type: message.type,
+    description: message.description
+  });
+  newChart.save().then(newChart => console.log('Successfully added'))
+  .catch(err => console.log(err));
    socket.emit('chart', message.toString());
 });
 
@@ -73,10 +73,10 @@ app.use("/api/users", users);
 app.use("/api/charts", charts);
 
 // Serve statics assets if in production
-// app.use(express.static('client/build'));
-// app.get('*', (req, res) => {
-//   res.sendFile(path.resolve(__dirname, 'client/build','index.html'));
-// })
+app.use(express.static('client/build'));
+app.get('*', (req, res) => {
+  res.sendFile(path.resolve(__dirname, 'client/build','index.html'));
+})
  
 const port = process.env.PORT || 5000;
 
