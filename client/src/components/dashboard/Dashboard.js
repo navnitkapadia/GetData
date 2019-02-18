@@ -6,7 +6,7 @@ import * as Chart from 'chart.js';
 import { connectSocket } from './socketConnection';
 import { withStyles } from '@material-ui/core/styles';
 import  MasterChart  from './MasterChart';
-import '@vaadin/vaadin-date-picker/vaadin-date-picker.js';
+import '@vaadin/vaadin-date-picker/theme/material/vaadin-date-picker.js';
 
 const styles = theme => ({
   root: {
