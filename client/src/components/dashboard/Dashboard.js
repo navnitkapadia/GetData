@@ -103,7 +103,7 @@ class Dashboard extends Component {
   }
   //what is done when a message arrives from the broker
   onMessageArrived(message) {
-    var data = JSON.parse(message);
+    var data = message;
     var today = new Date();
     var t = today.getHours() + ":" + today.getMinutes() + ":" + today.getSeconds();
     if (data.id === "Sensor 1") {

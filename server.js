@@ -47,7 +47,7 @@ client.on('message', function (topic, message) {
   });
   newChart.save().then(newChart => console.log('Successfully added'))
   .catch(err => console.log(err));
-   socket.emit('chart', message.toString());
+   socket.emit('chart', message);
 });
 
 // DB Config
