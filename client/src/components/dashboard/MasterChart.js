@@ -2,13 +2,13 @@ import React, { Component } from "react";
 import PropTypes from "prop-types";
 import { connect } from "react-redux";
 import { getChartData } from "../../actions/getActions";
-import * as Chart from 'chart.js';
 import { withStyles } from '@material-ui/core/styles';
-import '@vaadin/vaadin-date-picker/vaadin-date-picker.js';
+import '@vaadin/vaadin-date-picker/theme/material/vaadin-date-picker.js';
 import 'chartjs-plugin-zoom'
 import Hoc from '../../hoc/Hoc';
-import '@vaadin/vaadin-combo-box/vaadin-combo-box.js';
+import '@vaadin/vaadin-combo-box/theme/material/vaadin-combo-box.js';
 import Button from '@material-ui/core/Button';
+import Chart from "react-apexcharts";
 const styles = theme => ({
     root: {
       display: 'flex',
@@ -29,24 +29,99 @@ class MasterChart extends Component {
             endDate: '',
             mainChart: {},
             height: window.innerHeight, 
-            width: window.innerWidth
-        };
+            width: window.innerWidth,
+            chartOptionsArea: {
+                chart: {
+                  id: 'chartArea',
+                  toolbar: {
+                    autoSelected: 'pan',
+                    show: false
+                  }
+                },
+                colors: ['#546E7A'],
+                stroke: {
+                  width: 3
+                },
+                dataLabels: {
+                  enabled: false
+                },
+                fill: {
+                  opacity: 1,
+                },
+                markers: {
+                  size: 0
+                },
+                xaxis: {
+                  type: 'datetime'
+                }
+              },
+              chartOptionsBrush: {
+                chart: {
+                  id: 'chartBrush',
+                  brush: {
+                    target: 'chartArea',
+                    enabled: true
+                  },
+                  selection: {
+                    enabled: true,
+                    xaxis: {
+                      min: null,
+                      max: null
+                    }
+                  },
+                },
+                colors: ['#008FFB'],
+                fill: {
+                  type: 'gradient',
+                  gradient: {
+                    opacityFrom: 0.91,
+                    opacityTo: 0.1,
+                  }
+                },
+                xaxis: {
+                  type: 'datetime',
+                  tooltip: {
+                    enabled: false
+                  }
+                },
+                yaxis: {
+                  tickAmount: 2
+                }
+            },
+            series: [{
+                data: []
+              }], 
+            }
+      
         this.updateDimensions = this.updateDimensions.bind(this);
     }
+  
     componentWillReceiveProps(nextProps) {
-        var self = this;
-        // You don't have to do this check first, but it can help prevent an unneeded render
         if (nextProps.chartData) {
-            var data = this.state.mainChart.data.datasets[0].data;
-            this.state.mainChart.data.datasets[0].data.splice(0, data.length);
+            var data=[];
             nextProps.chartData.forEach(function (item) {
-                self.state.mainChart.data.datasets[0].data.push({
+                data.push({
                     x: new Date(item.date).getTime(),
                     y: item.value
                 })
             });
-            this.state.mainChart.resetZoom()
-            this.state.mainChart.update();
+            this.setState({
+                chartOptionsBrush: {
+                    ...this.state.chartOptionsBrush,
+                    selection: {
+                        ...this.state.chartOptionsBrush.selection,
+                        xaxis: {
+                            min: data[0].x,
+                            max: data[data.length-1].x
+                        }
+                    }
+                }
+            })
+            this.setState({
+                series: [{
+                    data: data
+                }]
+            });
         }
     }
     onResetZoom(){
@@ -64,71 +139,6 @@ class MasterChart extends Component {
     componentDidMount() {
         this.vaadinListener();
         window.addEventListener("resize", this.updateDimensions);
-        var mainChart = new Chart(document.getElementById("lineChart5").getContext("2d"), {
-            type: 'line',
-            data: {
-                datasets: [{
-                    label: "Dataset with point data",
-                    data: [],
-                    borderColor: "rgba(9,50,28,0.4)",
-                    backgroundColor: "rgba(199,92,201,0.5)",
-                    pointBorderColor: "rgba(112,243,120,0.7)",
-                    pointBackgroundColor: "rgba(177,189,56,0.5)",
-                    pointBorderWidth: 1,
-                    fill: false
-                }]
-            },
-            options: {
-                responsive: true,
-                title: {
-                    display: true,
-                    text: "Previous chart Time Scale"
-                },
-                scales: {
-                    xAxes: [
-                        {
-                            type: "time",
-                            time: {
-                                format: 'MM/DD/YYYY HH:mm',
-                                // round: 'day'
-                                tooltipFormat: "ll HH:mm"
-                            },
-                            scaleLabel: {
-                                display: true,
-                                labelString: "Date"
-                            },
-                            ticks: {
-                                maxRotation: 0
-                            }
-                        }
-                    ],
-                    yAxes: [
-                        {
-                            scaleLabel: {
-                                display: true,
-                                labelString: "value"
-                            }
-                        }
-                    ]
-                },
-                pan: {
-                    enabled: true,
-                    mode: "x",
-                    speed: 10,
-                    threshold: 10
-                },
-                zoom: {
-                    enabled: true,
-                    drag: false,
-                    mode: "xy",
-                    limits: {
-                        max: 10,
-                        min: 0.5
-                    }
-                }
-            }
-        });
-        this.setState({ mainChart: mainChart })
     }
 
 
@@ -199,7 +209,14 @@ class MasterChart extends Component {
             <div className="row">
                 <div className="col s12 m12 l12">
                     <div className="card">
-                        <canvas id="lineChart5"></canvas>
+                            <div id="charts">
+                            <div id="chart1">
+                            <Chart options={this.state.chartOptionsArea} series={this.state.series} type="line" height="230" />
+                            </div>
+                            <div id="chart2">
+                            <Chart options={this.state.chartOptionsBrush} series={this.state.series} type="area" height="130" />
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>
