@@ -2,15 +2,14 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import AppBar from '@material-ui/core/AppBar';
 import CssBaseline from '@material-ui/core/CssBaseline';
-import Divider from '@material-ui/core/Divider';
 import Drawer from '@material-ui/core/Drawer';
 import Hidden from '@material-ui/core/Hidden';
 import IconButton from '@material-ui/core/IconButton';
 import ExitToApp from '@material-ui/icons/ExitToApp';
+import KeyboardReturn from '@material-ui/icons/KeyboardReturn';
 import List from '@material-ui/core/List';
 import ListItem from '@material-ui/core/ListItem';
 import ListItemIcon from '@material-ui/core/ListItemIcon';
-import Done from '@material-ui/icons/Done';
 import ListItemText from '@material-ui/core/ListItemText';
 import MenuIcon from '@material-ui/icons/Menu';
 import Toolbar from '@material-ui/core/Toolbar';
@@ -18,12 +17,8 @@ import Typography from '@material-ui/core/Typography';
 import { withStyles } from '@material-ui/core/styles';
 import { connect } from "react-redux";
 import { getUsers } from "../../actions/getActions";
-import Avatar from '@material-ui/core/Avatar';
-import ListItemAvatar from '@material-ui/core/ListItemAvatar';
-import FolderIcon from '@material-ui/icons/Folder'
 import { logoutUser, approveUser } from "../../actions/authActions";
-import ListItemSecondaryAction from '@material-ui/core/ListItemSecondaryAction';
-
+import UserList from './UserList'
 const drawerWidth = 240;
 
 const styles = theme => ({
@@ -59,19 +54,11 @@ const styles = theme => ({
   content: {
     flexGrow: 1,
     padding: theme.spacing.unit * 3,
+    marginTop: '24px'
   },
 });
 
 class AdminDashboard extends React.Component {
-  componentWillMount() {
-    this.props.getUsers();
-  }
-  onApproveClick = id => {
-    var self = this;
-    this.props.approveUser(id).then(() => {
-      self.props.getUsers();
-    })
-  };
   state = {
     mobileOpen: false,
   };
@@ -83,14 +70,15 @@ class AdminDashboard extends React.Component {
     e.preventDefault();
     this.props.logoutUser();
   };
-
+  onWebAppClientClick = e => {
+    e.preventDefault();
+    this.props.history.push("../dashboard");
+  };
   render() {
     const { classes, theme } = this.props;
 
     const drawer = (
       <div>
-        <div className={classes.toolbar} />
-        <Divider />
         <List>
           <ListItem button onClick={this.onLogoutClick}>
             <ListItemIcon >
@@ -98,28 +86,16 @@ class AdminDashboard extends React.Component {
             </ListItemIcon>
             <ListItemText primary="Logout" />
           </ListItem>
+          <ListItem button onClick={this.onWebAppClientClick}>
+            <ListItemIcon >
+              <KeyboardReturn />
+            </ListItemIcon>
+            <ListItemText primary="Webapp" />
+          </ListItem>
         </List>
       </div>
     );
     const { user } = this.props.auth;
-    var list
-    if (this.props && this.props.users) {
-      list = this.props.users.map(({ _id, name }) => {
-        return <ListItem key={_id} button>
-          <ListItemAvatar>
-            <Avatar> 
-              <FolderIcon />
-            </Avatar>
-          </ListItemAvatar>
-          <ListItemText primary={name} />
-          <ListItemSecondaryAction>
-            <IconButton onClick={this.onApproveClick.bind(this, _id)}>
-              <Done className="icon-button" />
-            </IconButton>
-          </ListItemSecondaryAction>
-        </ListItem>
-      })
-    }
     return (
       <div className={classes.root}>
         <CssBaseline />
@@ -129,8 +105,7 @@ class AdminDashboard extends React.Component {
               color="inherit"
               aria-label="Open drawer"
               onClick={this.handleDrawerToggle}
-              className={classes.menuButton}
-            >
+              className={classes.menuButton}>
               <MenuIcon />
             </IconButton>
             <Typography variant="h6" color="inherit" noWrap>
@@ -138,7 +113,7 @@ class AdminDashboard extends React.Component {
             </Typography>
           </Toolbar>
         </AppBar>
-        <nav className={classes.drawer}>
+        <div className={classes.drawer}>
           {/* The implementation can be swapped with js to avoid SEO duplication of links. */}
           <Hidden smUp implementation="css">
             <Drawer
@@ -165,7 +140,7 @@ class AdminDashboard extends React.Component {
               {drawer}
             </Drawer>
           </Hidden>
-        </nav>
+        </div>
         <main className={classes.content}>
           <div className="row">
             <div className="landing-copy col s12 center-align">
@@ -177,11 +152,7 @@ class AdminDashboard extends React.Component {
               </h4>
             </div>
           </div>
-          <div hidden={!!!this.props.users.length} className={classes.listStyle}>
-            <List>
-              {list}
-            </List>
-          </div>
+            <UserList />
         </main>
       </div>
     );
@@ -199,8 +170,7 @@ AdminDashboard.propTypes = {
   logoutUser: PropTypes.func.isRequired
 };
 const mapStateToProps = state => ({
-  auth: state.auth,
-  users: state.get.users
+  auth: state.auth
 });
 
 export default connect(

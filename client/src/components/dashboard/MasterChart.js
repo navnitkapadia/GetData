@@ -7,7 +7,7 @@ import '@vaadin/vaadin-date-picker/theme/material/vaadin-date-picker.js';
 import 'chartjs-plugin-zoom'
 import Hoc from '../../hoc/Hoc';
 import '@vaadin/vaadin-combo-box/theme/material/vaadin-combo-box.js';
-import Button from '@material-ui/core/Button';
+// import Button from '@material-ui/core/Button';
 import Chart from "react-apexcharts";
 const styles = theme => ({
     root: {
@@ -65,6 +65,7 @@ class MasterChart extends Component {
                   selection: {
                     enabled: true,
                     xaxis: {
+                      tickAmount: 20,
                       min: null,
                       max: null
                     }
@@ -186,39 +187,19 @@ class MasterChart extends Component {
         });
     }
     render() {
-        const { classes } = this.props;
-        var className = 'layout horizontal';
-        if(this.state.width < 1200) {
-            className = "layout vertical"
-        } else {
-            className = "layout horizontal"
-        }
         return (<Hoc>
-            <div className={className}>
-            <div className="layout horizontal center-center">
-                <vaadin-combo-box ref="combo" label="Select sensor"></vaadin-combo-box>
-                <vaadin-date-picker id="start"  label="Start" ref="startDate"></vaadin-date-picker>
+            <div className="actions-tabs">
+              <vaadin-combo-box ref="combo" label="Select sensor"></vaadin-combo-box>
+              <vaadin-date-picker id="start"  label="Start" ref="startDate"></vaadin-date-picker>
+              <vaadin-date-picker id="end" label="End" ref="endtDate"></vaadin-date-picker>
             </div>
-            <div className="layout horizontal center-center">
-                <vaadin-date-picker id="end" label="End" ref="endtDate"></vaadin-date-picker>
-                <Button color="primary" className={classes.button} onClick={this.onResetZoom.bind(this)}>
-                    Reset zoom
-                </Button>
-            </div>
-            </div>
-            <div className="row">
-                <div className="col s12 m12 l12">
-                    <div className="card">
-                            <div id="charts">
-                            <div id="chart1">
-                            <Chart options={this.state.chartOptionsArea} series={this.state.series} type="line" height="230" />
-                            </div>
-                            <div id="chart2">
-                            <Chart options={this.state.chartOptionsBrush} series={this.state.series} type="area" height="130" />
-                            </div>
-                        </div>
-                    </div>
+            <div id="charts">
+              <div id="chart1">
+                <Chart options={this.state.chartOptionsArea} series={this.state.series} type="line" height="230" />
                 </div>
+                <div id="chart2">
+                <Chart options={this.state.chartOptionsBrush} series={this.state.series} type="area" height="130" />
+              </div>
             </div>
         </Hoc>);
     }

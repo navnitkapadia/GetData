@@ -19,6 +19,7 @@
     "jwt-decode": "^2.2.0",
     "lodash": "^4.17.11",
     "material-ui-pickers": "^2.2.1",
+    "material-ui-responsive-drawer": "^2.0.0-alpha.1",
     "moment": "^2.24.0",
     "mqtt-react": "0.0.3",
     "paho-mqtt": "^1.1.0",

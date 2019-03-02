@@ -2,7 +2,7 @@ import axios from "axios";
 import setAuthToken from "../utils/setAuthToken";
 import jwt_decode from "jwt-decode";
 
-import { GET_ERRORS, SET_CURRENT_USER, USER_LOADING, APPROVE_USER } from "./types";
+import { GET_ERRORS, SET_CURRENT_USER, USER_LOADING, APPROVE_USER, DISAPPROVE_USER } from "./types";
 
 
 // Approve User
@@ -22,6 +22,22 @@ export const approveUser = id => dispatch => {
     );
 };
 
+// Disapprove User
+export const disapproveUser = id => dispatch => {
+  return axios.post('../api/users/disapprove', { id: id })
+    .then((res) => {
+      dispatch({
+        type: DISAPPROVE_USER
+      })
+      return true;
+    }
+    ).catch(err =>
+      dispatch({
+        type: GET_ERRORS,
+        payload: err.response.data
+      })
+    );
+};
 // Register User
 export const registerUser = (userData, history) => dispatch => {
   axios

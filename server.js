@@ -10,7 +10,8 @@ const http = require('http').Server(app);
 const io = require('socket.io')(http);
 
 const mqtt = require('mqtt');
-var client = mqtt.connect('mqtt://iot.eclipse.org');
+const config = require("./config/config");
+var client = mqtt.connect(config.MqttBroker);
 const Chart = require("./models/Chart");
 // Bodyparser middleware
 app.use(
@@ -29,7 +30,7 @@ var socket = io.on('connection', (socket) => {
 });
 
 client.on('connect', function () {
-  client.subscribe('mydevice');
+  client.subscribe(config.MqttTopic);
   console.log('client has subscribed successfully');
 });
 
@@ -72,10 +73,10 @@ app.use("/api/users", users);
 app.use("/api/charts", charts);
 
 // Serve statics assets if in production
-app.use(express.static('client/build'));
-app.get('*', (req, res) => {
-  res.sendFile(path.resolve(__dirname, 'client/build','index.html'));
-})
+// app.use(express.static('client/build'));
+// app.get('*', (req, res) => {
+//   res.sendFile(path.resolve(__dirname, 'client/build','index.html'));
+// })
  
 const port = process.env.PORT || 5000;
 

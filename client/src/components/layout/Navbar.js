@@ -10,7 +10,6 @@ import { logoutUser } from "../../actions/authActions";
 const styles = {
   root: {
     flexGrow: 1,
-    marginBottom: 48
   },
   grow: {
     flexGrow: 1,

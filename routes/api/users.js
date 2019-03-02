@@ -55,7 +55,7 @@ router.post("/register", (req, res) => {
 // @desc Login user and return JWT token
 // @access Public
 router.post("/users", (req, res) => {
-  User.find({ 'role': 0, isApproved: false }).sort({ date: -1 })
+  User.find({ 'role': 0 }).sort({ date: -1 })
     .then(users => res.json(users));
 });
 
@@ -74,10 +74,32 @@ router.post("/approve", (req, res) => {
       if (err) {
         return res.status(400).json(err);
       }
-      return res.json({ message: "User successfully updated!" });
+      return res.json({ message: "User successfully Approved!" });
     });
   });
 });
+
+
+// @route POST api/users/login
+// @desc Login user and return JWT token
+// @access Public
+router.post("/disapprove", (req, res) => {
+  const id = req.body.id;
+  User.findById(id, function (err, user) {
+    if (err) {
+      return res.status(400).json(err);
+    }
+    user.isApproved = false;
+    // save the user
+    user.save(function (err) {
+      if (err) {
+        return res.status(400).json(err);
+      }
+      return res.json({ message: "User successfully Disapproved!" });
+    });
+  });
+});
+
 // @route POST api/users/login
 // @desc Login user and return JWT token
 // @access Public
@@ -121,7 +143,7 @@ router.post("/login", (req, res) => {
           payload,
           keys.secretOrKey,
           {
-            expiresIn: 1440 // 1 year in seconds
+            expiresIn: 86400 // 1 year in seconds
           },
           (err, token) => {
             res.json({

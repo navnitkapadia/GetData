@@ -1,6 +1,7 @@
 body {
    background-color:  rgb(246, 246, 246);
 }
-.card {
-    padding: 10px;
+.footer {
+    background-color: #0c172a;
+    padding: 24px;
 }
