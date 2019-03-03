@@ -6,10 +6,12 @@ import setAuthToken from "./utils/setAuthToken";
 import { setCurrentUser, logoutUser } from "./actions/authActions";
 import { Provider } from "react-redux";
 import store from "./store";
+import "assets/scss/material-kit-react.scss?v=1.4.0";
 
-import Landing from "./components/layout/Landing";
-import Register from "./components/auth/Register";
-import Login from "./components/auth/Login";
+import LandingPage from "./views/LandingPage/LandingPage.jsx";
+import LoginPage from "views/LoginPage/LoginPage.jsx";
+import RegisterPage from "views/RegisterPage/RegisterPage";
+// import Login from "./components/auth/Login";
 import PrivateRoute from "./components/private-route/PrivateRoute";
 import PrivateRouteAdmin from "./components/private-route/PrivateRouteAdmin";
 import Dashboard from "./components/dashboard/Dashboard";
@@ -41,9 +43,9 @@ class App extends Component {
       <Provider store={store}>
         <Router>
           <div className="App">
-            <Route exact path="/" component={Landing} />
-            <Route exact path="/register" component={Register} />
-            <Route exact path="/login" component={Login} />
+            <Route exact path="/" component={LandingPage} />
+            <Route exact path="/register" component={RegisterPage} />
+            <Route exact path="/login" component={LoginPage} />
             <Switch>
               <PrivateRoute exact path="/dashboard" component={Dashboard} />
               <PrivateRouteAdmin exact path="/admin/dashboard" admin component={AdminDashboard} />
