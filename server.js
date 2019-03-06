@@ -40,25 +40,21 @@ client.on('message', function (topic, message) {
     sensorId: message.id,
     value: message.value,
     lat: message.lat,
-    lng:  message.lng,
+    lng: message.lng,
     unit: message.unit,
     type: message.type,
     description: message.description
   });
   newChart.save().then(newChart => console.log('Successfully added'))
-  .catch(err => console.log(err));
-   socket.emit('chart', message);
+    .catch(err => console.log(err));
+  socket.emit('chart', message);
 });
 
 // DB Config
 const db = require("./config/keys").mongoURI;
 
 // Connect to MongoDB
-mongoose
-  .connect(
-    db,
-    { useNewUrlParser: true }
-  )
+mongoose.connect(db, { useMongoClient: true })
   .then(() => console.log("MongoDB successfully connected"))
   .catch(err => console.log(err));
 
@@ -77,9 +73,9 @@ app.use(express.static('client/build'));
 app.get('*', (req, res) => {
   res.sendFile(path.resolve(__dirname, 'client/build','index.html'));
 })
- 
+
 const port = process.env.PORT || 5000;
 
-http.listen(port, function(){
+http.listen(port, function () {
   console.log(`Server up and running on port ${port} !`);
 });

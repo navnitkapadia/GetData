@@ -106,14 +106,20 @@ class MasterChart extends Component {
                     y: item.value
                 })
             });
+            var min;
+            var max;
+            if(data && data[0] && data[0].x){
+              min = data[0].x;
+              max= data[data.length-1].x;
+            }
             this.setState({
                 chartOptionsBrush: {
                     ...this.state.chartOptionsBrush,
                     selection: {
                         ...this.state.chartOptionsBrush.selection,
                         xaxis: {
-                            min: data[0].x,
-                            max: data[data.length-1].x
+                            min: min,
+                            max: max
                         }
                     }
                 }
