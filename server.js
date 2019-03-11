@@ -13,6 +13,7 @@ const mqtt = require('mqtt');
 const config = require("./config/config");
 var client = mqtt.connect(config.MqttBroker);
 const Chart = require("./models/Chart");
+const User = require("./models/User");
 // Bodyparser middleware
 app.use(
   bodyParser.urlencoded({
@@ -30,7 +31,12 @@ var socket = io.on('connection', (socket) => {
 });
 
 client.on('connect', function () {
-  client.subscribe(config.MqttTopic);
+  User.find({isApproved: true}).then(user => {
+    for (i = 0; i < user.length; i++) { 
+      client.subscribe(user[i].topic);
+      console.log(user[i].topic);
+    }
+  });
   console.log('client has subscribed successfully');
 });
 
@@ -38,6 +44,7 @@ client.on('message', function (topic, message) {
   var message = JSON.parse(message);
   const newChart = new Chart({
     sensorId: message.id,
+    topic: topic,
     value: message.value,
     lat: message.lat,
     lng: message.lng,
@@ -47,7 +54,7 @@ client.on('message', function (topic, message) {
   });
   newChart.save().then(newChart => console.log('Successfully added'))
     .catch(err => console.log(err));
-  socket.emit('chart', message);
+  socket.emit('chart', {message: message, topic: topic});
 });
 
 // DB Config

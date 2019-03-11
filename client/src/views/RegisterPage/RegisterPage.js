@@ -24,6 +24,7 @@ import TextField from '@material-ui/core/TextField';
 import MySnackbarContentWrapper  from "../../components/Snackbar/MySnackbarContentWrapper";
 import Snackbar from '@material-ui/core/Snackbar';
 import People from "@material-ui/icons/People";
+import Nfc from "@material-ui/icons/Nfc";
 import IconButton from '@material-ui/core/IconButton';
 import Visibility from '@material-ui/icons/Visibility';
 import VisibilityOff from '@material-ui/icons/VisibilityOff';
@@ -35,6 +36,7 @@ class RegisterPage extends React.Component {
     this.state = {
       cardAnimaton: "cardHidden",
       name: "",
+      topic: "",
       email: "",
       password: "",
       password2: "",
@@ -89,6 +91,7 @@ class RegisterPage extends React.Component {
 
     const newUser = {
       name: this.state.name,
+      topic: this.state.topic,
       email: this.state.email,
       password: this.state.password,
       password2: this.state.password2
@@ -162,6 +165,25 @@ class RegisterPage extends React.Component {
                             <InputAdornment position="end">
                               <People className={classes.inputIconsColor} />
                             </InputAdornment>
+                          ),
+                        }}
+                      />
+                      <TextField
+                        id="topic"
+                        label="Topic"
+                        className={classes.textField}
+                        type="text"
+                        autoComplete="email"
+                        margin="normal"
+                        error={errors.topic? true: false}
+                        helperText={errors.topic}
+                        value={this.state.topic}
+                        onChange={this.onChange}
+                        InputProps={{
+                          endAdornment: (
+                            <Nfc position="end">
+                              <People className={classes.inputIconsColor} />
+                            </Nfc>
                           ),
                         }}
                       />

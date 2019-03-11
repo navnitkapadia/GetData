@@ -8,8 +8,10 @@ router.get("/all", (req, res) => {
   var sensorId = req.query.sensorId;
   var start = req.query.start;
   var end = req.query.end;
+  var topic = req.query.topic;
   Charts.find({
     'sensorId': sensorId,
+    'topic': topic,
     "date": { "$gte": new Date(start), "$lt": new Date(end) }
   }).then(users => {
     var map = users.map((value) => {

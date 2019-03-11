@@ -162,7 +162,7 @@ class MasterChart extends Component {
         if (!sensorId || !start || !end) {
             return;
         }
-        this.props.getChartData(sensorId, start, end);
+        this.props.getChartData(sensorId, start, end, this.props.auth.user.topic);
     }
     vaadinListener() {
         var self = this;
@@ -212,10 +212,12 @@ class MasterChart extends Component {
 }
 
 MasterChart.propTypes = {
-    getChartData: PropTypes.func.isRequired
+    getChartData: PropTypes.func.isRequired,
+    auth: PropTypes.object.isRequired
 };
 const mapStateToProps = state => ({
-    chartData: state.get.chartData
+    chartData: state.get.chartData,
+    auth: state.auth
 });
 
 export default connect(

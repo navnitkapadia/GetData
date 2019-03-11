@@ -1,5 +1,5 @@
 module.exports = {
-    MqttBroker: "mqtt://iot.eclipse.org",
+    MqttBroker: "mqtt://test.mosquitto.org",
     MqttTopic: "mydevice",
 };
   

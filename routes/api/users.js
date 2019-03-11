@@ -31,6 +31,7 @@ router.post("/register", (req, res) => {
     } else {
       const newUser = new User({
         name: req.body.name,
+        topic: req.body.topic,
         email: req.body.email,
         password: req.body.password,
         role: 0,
@@ -135,9 +136,9 @@ router.post("/login", (req, res) => {
         const payload = {
           id: user.id,
           name: user.name,
-          role: user.role
+          role: user.role,
+          topic: user.topic
         };
-
         // Sign token
         jwt.sign(
           payload,

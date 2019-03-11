@@ -3,10 +3,10 @@ import axios from "axios";
 import { GET_CHART_DATA, GET_USERS } from "./types"
 
 // Register User
-export const getChartData = (sensorId, start, end) => dispatch => {
+export const getChartData = (sensorId, start, end, topic) => dispatch => {
   axios.get('api/charts/all',{
       params: {
-        sensorId: sensorId, start: start, end: end
+        sensorId: sensorId, start: start, end: end, topic: topic
       }
     })
     .then(json => dispatch({
