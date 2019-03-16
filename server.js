@@ -32,8 +32,8 @@ var socket = io.on('connection', (socket) => {
 });
 
 eventEmitter.on('update-subscription', (event) => {
-  User.find({isApproved: true}).then(user => {
-    for (i = 0; i < user.length; i++) { 
+  User.find({ isApproved: true }).then(user => {
+    for (i = 0; i < user.length; i++) {
       client.subscribe(user[i].topic);
       console.log("Subscribe: New Topic");
     }
@@ -41,8 +41,8 @@ eventEmitter.on('update-subscription', (event) => {
 });
 
 eventEmitter.on('remove-subscription', (event) => {
-  User.find({isApproved: false}).then(user => {
-    for (i = 0; i < user.length; i++) { 
+  User.find({ isApproved: false }).then(user => {
+    for (i = 0; i < user.length; i++) {
       client.subscribe(user[i].topic);
       console.log("Subscription removed");
     }
@@ -50,8 +50,8 @@ eventEmitter.on('remove-subscription', (event) => {
 });
 
 client.on('connect', function () {
-  User.find({isApproved: true}).then(user => {
-    for (i = 0; i < user.length; i++) { 
+  User.find({ isApproved: true }).then(user => {
+    for (i = 0; i < user.length; i++) {
       client.subscribe(user[i].topic);
       console.log(user[i].topic);
     }
@@ -61,28 +61,30 @@ client.on('connect', function () {
 
 client.on('message', function (topic, message) {
   var message = JSON.parse(message);
-  const newChart = new Chart({
-    sensorId: message.id,
-    topic: topic,
-    value: message.value,
-    lat: message.lat,
-    lng: message.lng,
-    unit: message.unit,
-    type: message.type,
-    description: message.description
-  });
-  newChart.save().then(newChart => console.log('Successfully added'))
-    .catch(err => console.log(err));
-  socket.emit('chart', {message: message, topic: topic});
+  if (message && typeof message === "object") {
+    const newChart = new Chart({
+      sensorId: message.id,
+      topic: topic,
+      value: message.value,
+      lat: message.lat,
+      lng: message.lng,
+      unit: message.unit,
+      type: message.type,
+      description: message.description
+    });
+    newChart.save().then(newChart => console.log('Successfully added'))
+      .catch(err => console.log(err));
+    socket.emit('chart', { message: message, topic: topic });
+  }
 });
 
 // DB Config
 const db = require("./config/keys").mongoURI;
 
 // Connect to MongoDB
-mongoose.connect(db, {useNewUrlParser: true})
-.then(() => console.log("MongoDB successfully connected"))
-.catch(err => console.log(err));
+mongoose.connect(db, { useNewUrlParser: true })
+  .then(() => console.log("MongoDB successfully connected"))
+  .catch(err => console.log(err));
 
 // Passport middleware
 app.use(passport.initialize());

@@ -8,7 +8,6 @@ const passport = require("passport");
 // Load input validation
 const validateRegisterInput = require("../../validation/register");
 const validateLoginInput = require("../../validation/login");
-const eventEmitter = require('../../EventEmitter/eventEmitter');
 
 // Load User model
 const User = require("../../models/User");
@@ -32,7 +31,6 @@ router.post("/register", (req, res) => {
     } else {
       const newUser = new User({
         name: req.body.name,
-        topic: req.body.topic,
         email: req.body.email,
         password: req.body.password,
         role: 0,
@@ -71,7 +69,6 @@ router.post("/approve", (req, res) => {
       return res.status(400).json(err);
     }
     user.isApproved = true;
-    eventEmitter.emit('update-subscription');
     // save the user
     user.save(function (err) {
       if (err) {
@@ -93,7 +90,6 @@ router.post("/disapprove", (req, res) => {
       return res.status(400).json(err);
     }
     user.isApproved = false;
-    eventEmitter.emit('remove-subscription');
     // save the user
     user.save(function (err) {
       if (err) {
@@ -139,9 +135,9 @@ router.post("/login", (req, res) => {
         const payload = {
           id: user.id,
           name: user.name,
-          role: user.role,
-          topic: user.topic
+          role: user.role
         };
+
         // Sign token
         jwt.sign(
           payload,

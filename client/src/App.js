@@ -11,7 +11,6 @@ import "assets/scss/material-kit-react.scss?v=1.4.0";
 import LandingPage from "./views/LandingPage/LandingPage.jsx";
 import LoginPage from "views/LoginPage/LoginPage.jsx";
 import RegisterPage from "views/RegisterPage/RegisterPage";
-import AboutusPage from "views/AboutusPage/AboutusPage";
 // import Login from "./components/auth/Login";
 import PrivateRoute from "./components/private-route/PrivateRoute";
 import PrivateRouteAdmin from "./components/private-route/PrivateRouteAdmin";
@@ -47,7 +46,6 @@ class App extends Component {
             <Route exact path="/" component={LandingPage} />
             <Route exact path="/register" component={RegisterPage} />
             <Route exact path="/login" component={LoginPage} />
-            <Route exact path="/about-us" component={AboutusPage} />
             <Switch>
               <PrivateRoute exact path="/dashboard" component={Dashboard} />
               <PrivateRouteAdmin exact path="/admin/dashboard" admin component={AdminDashboard} />

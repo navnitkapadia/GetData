@@ -106,20 +106,14 @@ class MasterChart extends Component {
                     y: item.value
                 })
             });
-            var min;
-            var max;
-            if(data && data[0] && data[0].x){
-              min = data[0].x;
-              max= data[data.length-1].x;
-            }
             this.setState({
                 chartOptionsBrush: {
                     ...this.state.chartOptionsBrush,
                     selection: {
                         ...this.state.chartOptionsBrush.selection,
                         xaxis: {
-                            min: min,
-                            max: max
+                            min: data[0].x,
+                            max: data[data.length-1].x
                         }
                     }
                 }
@@ -162,7 +156,7 @@ class MasterChart extends Component {
         if (!sensorId || !start || !end) {
             return;
         }
-        this.props.getChartData(sensorId, start, end, this.props.auth.user.topic);
+        this.props.getChartData(sensorId, start, end);
     }
     vaadinListener() {
         var self = this;
@@ -212,12 +206,10 @@ class MasterChart extends Component {
 }
 
 MasterChart.propTypes = {
-    getChartData: PropTypes.func.isRequired,
-    auth: PropTypes.object.isRequired
+    getChartData: PropTypes.func.isRequired
 };
 const mapStateToProps = state => ({
-    chartData: state.get.chartData,
-    auth: state.auth
+    chartData: state.get.chartData
 });
 
 export default connect(
