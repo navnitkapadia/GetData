@@ -42,7 +42,7 @@ class LandingPage extends React.Component {
           {...rest}
         />
         <Parallax filter image={require("assets/img/landing-bg.jpg")}>
-          <div className={classes.container}>
+          <div className={classes.container1}>
             <GridContainer>
               <GridItem xs={12} sm={12} md={6}>
                 <h1 className={classes.title}>Your Story Starts With Us.</h1>

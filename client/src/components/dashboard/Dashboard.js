@@ -6,23 +6,10 @@ import * as Chart from 'chart.js';
 import { connectSocket } from './socketConnection';
 import { withStyles } from '@material-ui/core/styles';
 import MasterChart from './MasterChart';
-import ExitToApp from '@material-ui/icons/ExitToApp';
 import '@vaadin/vaadin-date-picker/theme/material/vaadin-date-picker.js';
 import Grid from '@material-ui/core/Grid';
 import Paper from '@material-ui/core/Paper';
-import AppBar from '@material-ui/core/AppBar';
-import CssBaseline from '@material-ui/core/CssBaseline';
-import Drawer from '@material-ui/core/Drawer';
-import Hidden from '@material-ui/core/Hidden';
-import IconButton from '@material-ui/core/IconButton';
-import List from '@material-ui/core/List';
-import ListItem from '@material-ui/core/ListItem';
-import ListItemIcon from '@material-ui/core/ListItemIcon';
-import ListItemText from '@material-ui/core/ListItemText';
-import MenuIcon from '@material-ui/icons/Menu';
-import Toolbar from '@material-ui/core/Toolbar';
-import Typography from '@material-ui/core/Typography';
-import KeyboardReturn from '@material-ui/icons/KeyboardReturn';
+import TopicManager from "./TopicManager";
 
 const drawerWidth = 240;
 
@@ -79,18 +66,9 @@ class Dashboard extends Component {
       myChart1: {},
       myChart2: {},
       myChart3: {},
-      myChart4: {},
-      mobileOpen: false,
+      myChart4: {}
     };
   }
-  onLogoutClick = e => {
-    e.preventDefault();
-    this.props.logoutUser();
-  };
-
-  handleDrawerToggle = () => {
-    this.setState(state => ({ mobileOpen: !state.mobileOpen }));
-  };
   componentDidMount() {
     var myChart1 = new Chart(document.getElementById("lineChart1").getContext("2d"), {
       type: 'line',
@@ -163,7 +141,10 @@ class Dashboard extends Component {
   }
   //what is done when a message arrives from the broker
   onMessageArrived(message) {
-    var data = message;
+    var data = message.message;
+    if (this.props.auth.user.topic !== message.topic) {
+      return;
+    }
     var today = new Date();
     var t = today.getHours() + ":" + today.getMinutes() + ":" + today.getSeconds();
     if (data.id === "Sensor 1") {
@@ -202,10 +183,6 @@ class Dashboard extends Component {
   onConnectionLost(responseObject) {
     console.log("connection lost: " + responseObject.errorMessage);
   };
-  onWebAppClientClick = e => {
-    e.preventDefault();
-    this.props.history.push("/admin/dashboard");
-  };
 
   static defaultProps = {
     displayTitle: true,
@@ -213,103 +190,40 @@ class Dashboard extends Component {
     legendPosition: 'right'
   }
   render() {
-    const { classes, theme } = this.props;
+    const { classes } = this.props;
 
-    const drawer = (
-      <div>
-        <List>
-          <ListItem button onClick={this.onLogoutClick}>
-            <ListItemIcon >
-              <ExitToApp />
-            </ListItemIcon>
-            <ListItemText primary="Logout" />
-          </ListItem>
-          {
-            this.props.auth.user.role === 1 ?<ListItem button onClick={this.onWebAppClientClick}>
-            <ListItemIcon >
-              <KeyboardReturn />
-            </ListItemIcon>
-            <ListItemText primary="Admin" />
-          </ListItem> : null
-          }
-        </List>
-      </div>
-    );
-    return (
-      <div className={classes.root}>
-        <CssBaseline />
-        <AppBar position="fixed" className={classes.appBar}>
-          <Toolbar>
-            <IconButton
-              color="inherit"
-              aria-label="Open drawer"
-              onClick={this.handleDrawerToggle}
-              className={classes.menuButton}
-            >
-              <MenuIcon />
-            </IconButton>
-            <Typography variant="h6" color="inherit" noWrap>
-              Get Data
-          </Typography>
-          </Toolbar>
-        </AppBar>
-        <div className={classes.drawer}>
-          {/* The implementation can be swapped with js to avoid SEO duplication of links. */}
-          <Hidden smUp implementation="css">
-            <Drawer
-              container={this.props.container}
-              variant="temporary"
-              anchor={theme.direction === 'rtl' ? 'right' : 'left'}
-              open={this.state.mobileOpen}
-              onClose={this.handleDrawerToggle}
-              classes={{
-                paper: classes.drawerPaper,
-              }}>
-              {drawer}
-            </Drawer>
-          </Hidden>
-          <Hidden xsDown implementation="css">
-            <Drawer
-              classes={{
-                paper: classes.drawerPaper,
-              }}
-              variant="permanent"
-              open>
-              {drawer}
-            </Drawer>
-          </Hidden>
-        </div>
-        <main className={classes.content}>
-          <Grid className={classes.gridContainer} container spacing={24}>
-            <Grid item xs={12} sm={6}>
-              <Paper className={classes.paper}>
-                <canvas id="lineChart1"></canvas>
-              </Paper>
-            </Grid>
-            <Grid item xs={12} sm={6}>
-              <Paper className={classes.paper}>
-                <canvas id="lineChart2"></canvas>
-              </Paper>
-            </Grid>
-            <Grid item xs={12} sm={6}>
-              <Paper className={classes.paper}>
-                <canvas id="lineChart3"></canvas>
-              </Paper>
-            </Grid>
-            <Grid item xs={12} sm={6} >
-              <Paper className={classes.paper}>
-                <canvas id="lineChart4"></canvas>
-              </Paper>
-            </Grid>
-            <Grid item xs sm md lg>
-              <Paper className={classes.paper}>
-                <MasterChart />
-              </Paper>
-            </Grid>
-          </Grid>
-        </main>
-      </div>
-    );
+    return (<Grid className={classes.gridContainer} container spacing={24}>
+      <Grid item xs={12} sm={12} md={12} lg={12}>
+        <Paper className={classes.paper}>
+          <TopicManager />
+        </Paper>
+      </Grid>
+      <Grid item xs={12} sm={6}>
+        <Paper className={classes.paper}>
+          <canvas id="lineChart1"></canvas>
+        </Paper>
+      </Grid>
+      <Grid item xs={12} sm={6}>
+        <Paper className={classes.paper}>
+          <canvas id="lineChart2"></canvas>
+        </Paper>
+      </Grid>
+      <Grid item xs={12} sm={6}>
+        <Paper className={classes.paper}>
+          <canvas id="lineChart3"></canvas>
+        </Paper>
+      </Grid>
+      <Grid item xs={12} sm={6} >
+        <Paper className={classes.paper}>
+          <canvas id="lineChart4"></canvas>
+        </Paper>
+      </Grid>
+      <Grid item xs sm md lg>
+        <Paper className={classes.paper}>
+          <MasterChart />
+        </Paper>
+      </Grid>
+    </Grid>);
   }
 }
 

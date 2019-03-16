@@ -80,6 +80,15 @@ class HeaderLinks extends Component {
           <Home className={classes.icons} /> Home
         </Link>
       </ListItem>
+      <ListItem className={classes.listItem}>
+        <Link
+          to="/about-us"
+          color="transparent"
+          className={classes.navLink}
+        >
+          About us
+      </Link>
+      </ListItem>
       {links}
     </List>
     );

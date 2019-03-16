@@ -10,6 +10,7 @@ class Register extends Component {
     super();
     this.state = {
       name: "",
+      topic: "",
       email: "",
       password: "",
       password2: "",
@@ -82,6 +83,20 @@ class Register extends Component {
                 />
                 <label htmlFor="name">Name</label>
                 <span className="red-text">{errors.name}</span>
+              </div>
+              <div className="input-field col s12">
+                <input
+                  onChange={this.onChange}
+                  value={this.state.topic}
+                  error={errors.topic}
+                  id="topic"
+                  type="text"
+                  className={classnames("", {
+                    invalid: errors.name
+                  })}
+                />
+                <label htmlFor="name">Topic</label>
+                <span className="red-text">{errors.topic}</span>
               </div>
               <div className="input-field col s12">
                 <input

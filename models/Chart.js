@@ -20,10 +20,14 @@ const ChartSchema = new Schema({
     required: true
   },
   unit: {
-    type: Boolean,
+    type: String,
     required: true
   },
   type: {
+    type: String,
+    required: true
+  },
+  topic: {
     type: String,
     required: true
   },
