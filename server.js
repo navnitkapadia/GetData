@@ -14,6 +14,7 @@ const config = require("./config/config");
 var client = mqtt.connect(config.MqttBroker);
 const Chart = require("./models/Chart");
 const User = require("./models/User");
+const eventEmitter = require('./EventEmitter/eventEmitter');
 // Bodyparser middleware
 app.use(
   bodyParser.urlencoded({
@@ -28,6 +29,24 @@ var socket = io.on('connection', (socket) => {
     console.log('User Disconnected');
   })
   return socket;
+});
+
+eventEmitter.on('update-subscription', (event) => {
+  User.find({isApproved: true}).then(user => {
+    for (i = 0; i < user.length; i++) { 
+      client.subscribe(user[i].topic);
+      console.log("Subscribe: New Topic");
+    }
+  });
+});
+
+eventEmitter.on('remove-subscription', (event) => {
+  User.find({isApproved: false}).then(user => {
+    for (i = 0; i < user.length; i++) { 
+      client.subscribe(user[i].topic);
+      console.log("Subscription removed");
+    }
+  });
 });
 
 client.on('connect', function () {
@@ -61,9 +80,9 @@ client.on('message', function (topic, message) {
 const db = require("./config/keys").mongoURI;
 
 // Connect to MongoDB
-mongoose.connect(db, { useMongoClient: true })
-  .then(() => console.log("MongoDB successfully connected"))
-  .catch(err => console.log(err));
+mongoose.connect(db, {useNewUrlParser: true})
+.then(() => console.log("MongoDB successfully connected"))
+.catch(err => console.log(err));
 
 // Passport middleware
 app.use(passport.initialize());
@@ -76,10 +95,10 @@ app.use("/api/users", users);
 app.use("/api/charts", charts);
 
 // Serve statics assets if in production
-app.use(express.static('client/build'));
-app.get('*', (req, res) => {
-  res.sendFile(path.resolve(__dirname, 'client/build','index.html'));
-})
+// app.use(express.static('client/build'));
+// app.get('*', (req, res) => {
+//   res.sendFile(path.resolve(__dirname, 'client/build','index.html'));
+// })
 
 const port = process.env.PORT || 5000;
 

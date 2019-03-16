@@ -8,6 +8,7 @@ const passport = require("passport");
 // Load input validation
 const validateRegisterInput = require("../../validation/register");
 const validateLoginInput = require("../../validation/login");
+const eventEmitter = require('../../EventEmitter/eventEmitter');
 
 // Load User model
 const User = require("../../models/User");
@@ -70,6 +71,7 @@ router.post("/approve", (req, res) => {
       return res.status(400).json(err);
     }
     user.isApproved = true;
+    eventEmitter.emit('update-subscription');
     // save the user
     user.save(function (err) {
       if (err) {
@@ -91,6 +93,7 @@ router.post("/disapprove", (req, res) => {
       return res.status(400).json(err);
     }
     user.isApproved = false;
+    eventEmitter.emit('remove-subscription');
     // save the user
     user.save(function (err) {
       if (err) {
