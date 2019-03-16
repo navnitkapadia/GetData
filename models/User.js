@@ -23,6 +23,10 @@ const UserSchema = new Schema({
     type: Boolean,
     required: true
   },
+  topic: {
+    type: String,
+    required: true
+  },
   date: {
     type: Date,
     default: Date.now
