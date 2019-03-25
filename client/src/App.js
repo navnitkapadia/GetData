@@ -17,6 +17,7 @@ import PrivateRoute from "./components/private-route/PrivateRoute";
 import PrivateRouteAdmin from "./components/private-route/PrivateRouteAdmin";
 import Dashboard from "./components/dashboard/Dashboard";
 import AdminDashboard from "./components/admin/AdminDashboard";
+import AddTopic from "./components/AddTopic/AddTopic";
 
 // Check for token to keep user logged in
 if (localStorage.jwtToken) {
@@ -50,6 +51,7 @@ class App extends Component {
             <Route exact path="/about-us" component={AboutusPage} />
             <Switch>
               <PrivateRoute exact path="/dashboard" component={Dashboard} />
+              <PrivateRoute exact path="/topics" component={AddTopic} />
               <PrivateRouteAdmin exact path="/admin/dashboard" admin component={AdminDashboard} />
             </Switch>
           </div>

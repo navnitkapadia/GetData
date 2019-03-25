@@ -2,7 +2,7 @@ import axios from "axios";
 import setAuthToken from "../utils/setAuthToken";
 import jwt_decode from "jwt-decode";
 
-import { GET_ERRORS, SET_CURRENT_USER, USER_LOADING, APPROVE_USER, DISAPPROVE_USER } from "./types";
+import { GET_ERRORS, SET_CURRENT_USER, USER_LOADING, SET_TOPIC, APPROVE_USER, DISAPPROVE_USER } from "./types";
 
 
 // Approve User
@@ -83,7 +83,35 @@ export const setCurrentUser = decoded => {
     payload: decoded
   };
 };
-
+// Set logged in user
+export const setTopic = (topic, id) => dispatch => {
+  axios
+    .post("/api/users/topic", {topic: topic, id: id })
+    .then(res => {
+      dispatch({
+        type: SET_TOPIC,
+        payload: res.data.topic
+      });
+    })
+    .catch(err => {
+      console.log('Error', err);
+    }
+    );
+};
+export const removeTopicItem = (topicId, id) => dispatch => {
+  axios
+    .post("/api/users/remove-topic", {topicId: topicId, id: id })
+    .then(res => {
+      dispatch({
+        type: SET_TOPIC,
+        payload: res.data.topic
+      });
+    })
+    .catch(err => {
+      console.log('Error', err);
+    }
+    );
+};
 // User loading
 export const setUserLoading = () => {
   return {

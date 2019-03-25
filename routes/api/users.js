@@ -4,7 +4,7 @@ const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
 const keys = require("../../config/keys");
 const passport = require("passport");
-
+const eventEmitter = require('../../plugins/EventEmitter/eventEmitter');
 // Load input validation
 const validateRegisterInput = require("../../validation/register");
 const validateLoginInput = require("../../validation/login");
@@ -70,6 +70,7 @@ router.post("/approve", (req, res) => {
       return res.status(400).json(err);
     }
     user.isApproved = true;
+    eventEmitter.emit('update-subscription', id);
     // save the user
     user.save(function (err) {
       if (err) {
@@ -91,12 +92,50 @@ router.post("/disapprove", (req, res) => {
       return res.status(400).json(err);
     }
     user.isApproved = false;
+    eventEmitter.emit('remove-subscription',id);
     // save the user
     user.save(function (err) {
       if (err) {
         return res.status(400).json(err);
       }
       return res.json({ message: "User successfully Disapproved!" });
+    });
+  });
+});
+router.post("/topic", (req, res) => {
+  const id = req.body.id;
+  const topic = req.body.topic;
+  User.findById(id, function (err, user) {
+    if (err) {
+      return res.status(400).json(err);
+    }
+    let newTopicArray = [...user.topic, topic];
+    user.topic = newTopicArray;  
+    eventEmitter.emit('update-subscription',id);    
+    // save the user
+    user.save(function (err) {
+      if (err) {
+        return res.status(400).json(err);
+      }
+      return res.json({ topic: user.topic });
+    });
+  });
+});
+router.post("/remove-topic", (req, res) => {
+  const id = req.body.id;
+  const topicId = req.body.topicId;
+  User.findById(id, function (err, user) {
+    if (err) {
+      return res.status(400).json(err);
+    }
+    user.topic.splice(topicId, 1);  
+    eventEmitter.emit('remove-subscription',id);
+    // save the user
+    user.save(function (err) {
+      if (err) {
+        return res.status(400).json(err);
+      }
+      return res.json({ topic: user.topic });
     });
   });
 });
@@ -126,7 +165,7 @@ router.post("/login", (req, res) => {
     if (user && !user.isApproved) {
       return res
         .status(403)
-        .json({ isApproved: "User is not approved by admin" });
+        .json({ isApproved: "You are not approved by admin. please contact us." });
     }
     // Check password
     bcrypt.compare(password, user.password).then(isMatch => {

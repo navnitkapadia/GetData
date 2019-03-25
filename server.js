@@ -8,7 +8,7 @@ const charts = require("./routes/api/charts");
 const app = express();
 const http = require('http').Server(app);
 const io = require('socket.io')(http);
-
+const eventEmitter = require('./plugins/EventEmitter/eventEmitter');
 const mqtt = require('mqtt');
 const config = require("./config/config");
 var client = mqtt.connect(config.MqttBroker);
@@ -33,35 +33,64 @@ var socket = io.on('connection', (socket) => {
 client.on('connect', function () {
   User.find({isApproved: true}).then(user => {
     for (i = 0; i < user.length; i++) { 
-      client.subscribe(user[i].topic);
-      console.log(user[i].topic);
+        for(j=0; j < user[i].topic.length; j++){
+          client.subscribe(user[i].topic[j]);
+          console.log("topics:", user[i].topic[j]);
+        }
     }
   });
   console.log('client has subscribed successfully');
 });
-
+eventEmitter.on('update-subscription', (id) => {
+  User.findById(id, (err, user) => {
+    if (err) {
+      console.log(err);
+    } 
+    var topic = user.topic || [];
+    for(i=0; i < topic.length; i++){
+      client.subscribe(topic[i]);
+      console.log(topic[i]);
+    }
+  });
+});
+eventEmitter.on('remove-subscription', (id) => {
+  User.findById(id, (err, user) => {
+    if (err) {
+      console.log(err);
+    } 
+    var topic = user.topic || [];
+    for(i=0; i < topic.length; i++){
+      client.unsubscribe(topic[i]);
+      console.log(topic[i]);
+    }
+  });
+});
+client.on('', function(){
+  
+})
 client.on('message', function (topic, message) {
   var message = JSON.parse(message);
-  const newChart = new Chart({
-    sensorId: message.id,
-    topic: topic,
-    value: message.value,
-    lat: message.lat,
-    lng: message.lng,
-    unit: message.unit,
-    type: message.type,
-    description: message.description
-  });
-  newChart.save().then(newChart => console.log('Successfully added'))
-    .catch(err => console.log(err));
-  socket.emit('chart', {message: message, topic: topic});
+  if(message && typeof message === "object"){
+    const newChart = new Chart({
+      sensorId: message.id,
+      topic: topic,
+      value: message.value,
+      lat: message.lat,
+      lng: message.lng,
+      unit: message.unit,
+      description: message.description
+    });
+    newChart.save().then(newChart => console.log('Successfully added'))
+      .catch(err => console.log("Error:", err));
+    socket.emit('chart', {message: message, topic: topic});
+  }
 });
 
 // DB Config
 const db = require("./config/keys").mongoURI;
 
 // Connect to MongoDB
-mongoose.connect(db, { useMongoClient: true })
+mongoose.connect(db, { useNewUrlParser: true })
   .then(() => console.log("MongoDB successfully connected"))
   .catch(err => console.log(err));
 
@@ -74,13 +103,15 @@ require("./config/passport")(passport);
 // Routes
 app.use("/api/users", users);
 app.use("/api/charts", charts);
+console.log(process.env.NODE_ENV);
 
 // Serve statics assets if in production
-app.use(express.static('client/build'));
-app.get('*', (req, res) => {
-  res.sendFile(path.resolve(__dirname, 'client/build','index.html'));
-})
-
+if(process.env.NODE_ENV === 'production') {
+  app.use(express.static('client/build'));
+  app.get('*', (req, res) => {
+    res.sendFile(path.resolve(__dirname, 'client/build','index.html'));
+  })
+}
 const port = process.env.PORT || 5000;
 
 http.listen(port, function () {

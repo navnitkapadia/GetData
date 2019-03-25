@@ -13,19 +13,19 @@ const ChartSchema = new Schema({
   },
   lat: {
     type: Number,
-    required: true
+    required: false
   },
   lng: {
     type: Number,
-    required: true
+    required: false
   },
   unit: {
-    type: Boolean,
-    required: true
+    type: String,
+    required: false
   },
   type: {
     type: String,
-    required: true
+    required: false
   },
   topic: {
     type: String,
@@ -33,7 +33,7 @@ const ChartSchema = new Schema({
   },
   description: {
     type: String,
-    required: true
+    required: false
   },
   date: {
     type: Date,

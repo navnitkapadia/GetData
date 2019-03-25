@@ -15,6 +15,7 @@ import CssBaseline from '@material-ui/core/CssBaseline';
 import Drawer from '@material-ui/core/Drawer';
 import Hidden from '@material-ui/core/Hidden';
 import IconButton from '@material-ui/core/IconButton';
+import DashboardIcon from '@material-ui/icons/Dashboard';
 import List from '@material-ui/core/List';
 import ListItem from '@material-ui/core/ListItem';
 import ListItemIcon from '@material-ui/core/ListItemIcon';
@@ -23,6 +24,7 @@ import MenuIcon from '@material-ui/icons/Menu';
 import Toolbar from '@material-ui/core/Toolbar';
 import Typography from '@material-ui/core/Typography';
 import KeyboardReturn from '@material-ui/icons/KeyboardReturn';
+import Nfc from "@material-ui/icons/Nfc";
 
 const drawerWidth = 240;
 
@@ -164,7 +166,7 @@ class Dashboard extends Component {
   //what is done when a message arrives from the broker
   onMessageArrived(message) {
     var data = message.message;
-    if(this.props.auth.user.topic !== message.topic){
+    if (!this.props.auth.user.topic.includes(message.topic)) {
       return;
     }
     var today = new Date();
@@ -210,6 +212,14 @@ class Dashboard extends Component {
     this.props.history.push("/admin/dashboard");
   };
 
+  addTopic = e => {
+    e.preventDefault();
+    this.props.history.push("/topics");
+  }
+  onWebAppDashboard = e => {
+    e.preventDefault();
+    this.props.history.push("/dashboard");
+  }
   static defaultProps = {
     displayTitle: true,
     displayLegend: false,
@@ -228,13 +238,25 @@ class Dashboard extends Component {
             <ListItemText primary="Logout" />
           </ListItem>
           {
-            this.props.auth.user.role === 1 ?<ListItem button onClick={this.onWebAppClientClick}>
-            <ListItemIcon >
-              <KeyboardReturn />
-            </ListItemIcon>
-            <ListItemText primary="Admin" />
-          </ListItem> : null
+            this.props.auth.user.role === 1 ? <ListItem button onClick={this.onWebAppClientClick}>
+              <ListItemIcon >
+                <KeyboardReturn />
+              </ListItemIcon>
+              <ListItemText primary="Admin" />
+            </ListItem> : null
           }
+          <ListItem button onClick={this.onWebAppDashboard}>
+            <ListItemIcon >
+              <DashboardIcon />
+            </ListItemIcon>
+            <ListItemText primary="Dashboard" />
+          </ListItem>
+          <ListItem button onClick={this.addTopic}>
+            <ListItemIcon >
+              <Nfc />
+            </ListItemIcon>
+            <ListItemText primary="Add topic" />
+          </ListItem>
         </List>
       </div>
     );

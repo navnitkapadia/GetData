@@ -24,8 +24,8 @@ const UserSchema = new Schema({
     required: true
   },
   topic: {
-    type: String,
-    required: true
+    type: Array,
+    required: false
   },
   date: {
     type: Date,

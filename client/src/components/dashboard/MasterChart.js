@@ -27,6 +27,7 @@ class MasterChart extends Component {
             activeSensor: '',
             startDate: '',
             endDate: '',
+            topic: '',
             mainChart: {},
             height: window.innerHeight, 
             width: window.innerWidth,
@@ -149,9 +150,12 @@ class MasterChart extends Component {
     }
 
 
-    callChartApi(sensorId, start, end) {
+    callChartApi(sensorId, start, end, topic) {
         if (!sensorId) {
             sensorId = this.state.activeSensor;
+        }
+        if(topic) {
+          topic = this.state.topic;
         }
         if (!start) {
             start = this.state.startDate;
@@ -159,27 +163,35 @@ class MasterChart extends Component {
         if (!end) {
             end = this.state.endDate;
         }
-        if (!sensorId || !start || !end) {
+        if (!sensorId || !start || !end || !topic) {
             return;
         }
-        this.props.getChartData(sensorId, start, end, this.props.auth.user.topic);
+        this.props.getChartData(sensorId, start, end, topic);
     }
     vaadinListener() {
         var self = this;
         var start = this.refs.startDate;
         var end = this.refs.endtDate;
         var comboBox = this.refs.combo;
+        var topicBox = this.refs.topic;
         if (comboBox) {
             comboBox.items = ['Sensor 1', 'Sensor 2', 'Sensor 3', 'Sensor 4'];
         }
+        if(topicBox){
+          topicBox.items = this.props.auth.user.topic;
+        }
         comboBox.addEventListener('value-changed', function () {
             self.setState({ activeSensor: comboBox.value })
-            self.callChartApi(comboBox.value, null, null)
+            self.callChartApi(comboBox.value, null, null, null)
         });
+        topicBox.addEventListener('value-changed', ()=>{
+          self.setState({ topic: topicBox.value })
+          self.callChartApi(null,null, null, topicBox.value)
+        })
         start.addEventListener('change', function () {
             end.min = start.value;
             self.setState({ startDate: start.value })
-            self.callChartApi(null, start.value, null)
+            self.callChartApi(null, start.value, null, null)
             // Open the second date picker when the user has selected a value
             if (start.value) {
                 end.open();
@@ -189,12 +201,13 @@ class MasterChart extends Component {
         end.addEventListener('change', function () {
             start.max = end.value;
             self.setState({ endDate: end.value });
-            self.callChartApi(null, null, end.value)
+            self.callChartApi(null, null, end.value, null)
         });
     }
     render() {
         return (<Hoc>
             <div className="actions-tabs">
+              <vaadin-combo-box ref="topic" label="Select topic"></vaadin-combo-box>
               <vaadin-combo-box ref="combo" label="Select sensor"></vaadin-combo-box>
               <vaadin-date-picker id="start"  label="Start" ref="startDate"></vaadin-date-picker>
               <vaadin-date-picker id="end" label="End" ref="endtDate"></vaadin-date-picker>
