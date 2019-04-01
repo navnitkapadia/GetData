@@ -65,24 +65,34 @@ eventEmitter.on('remove-subscription', (id) => {
     }
   });
 });
-client.on('', function(){
-  
+eventEmitter.on('publish-message', (topic, message) => {
+  client.publish(topic, message);
+});
+client.on('disconnecting', function(e){
+  client = mqtt.connect(config.MqttBroker);
+})
+client.on('disconnected', function(e){
+  client = mqtt.connect(config.MqttBroker);
 })
 client.on('message', function (topic, message) {
-  var message = JSON.parse(message);
-  if(message && typeof message === "object"){
-    const newChart = new Chart({
-      sensorId: message.id,
-      topic: topic,
-      value: message.value,
-      lat: message.lat,
-      lng: message.lng,
-      unit: message.unit,
-      description: message.description
-    });
-    newChart.save().then(newChart => console.log('Successfully added'))
-      .catch(err => console.log("Error:", err));
-    socket.emit('chart', {message: message, topic: topic});
+  if(message.toString() === "[object Object]"){
+    var data = JSON.parse(message);
+    if(data && typeof data === "object"){
+      const newChart = new Chart({
+        sensorId: data.id,
+        topic: topic,
+        value: data.value,
+        lat: data.lat,
+        lng: data.lng,
+        unit: data.unit,
+        description: data.description
+      });
+      newChart.save().then()
+        .catch(err => console.log("Error:", err));
+      socket.emit('chart', {message: data, topic: topic});
+    }
+  } else {
+    console.log(message.toString())
   }
 });
 

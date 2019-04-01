@@ -121,6 +121,13 @@ router.post("/topic", (req, res) => {
     });
   });
 });
+router.post("/publish-message", (req, res) => {
+  const topic = req.body.topic;
+  const message = req.body.message;
+  eventEmitter.emit('publish-message',topic, message); 
+  return res.json({ message: "Message published" });
+});
+
 router.post("/remove-topic", (req, res) => {
   const id = req.body.id;
   const topicId = req.body.topicId;

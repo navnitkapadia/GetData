@@ -1,5 +1,6 @@
 import socketIOClient from 'socket.io-client'
-const socket = socketIOClient('https://serene-wildwood-93663.herokuapp.com/');
+import config from '../../config'
+const socket = socketIOClient(config.socketIo);
 function connectSocket(cb) {
   // listen for any messages coming through
   // of type 'chat' and then trigger the 

@@ -216,6 +216,12 @@ class Dashboard extends Component {
     e.preventDefault();
     this.props.history.push("/topics");
   }
+  
+  gotoPublish = e => {
+    e.preventDefault();
+    this.props.history.push("/publish-data");
+  }
+
   onWebAppDashboard = e => {
     e.preventDefault();
     this.props.history.push("/dashboard");
@@ -256,6 +262,12 @@ class Dashboard extends Component {
               <Nfc />
             </ListItemIcon>
             <ListItemText primary="Add topic" />
+          </ListItem>
+          <ListItem button onClick={this.gotoPublish}>
+              <ListItemIcon >
+                  <Nfc />
+              </ListItemIcon>
+              <ListItemText primary="Publish Message" />
           </ListItem>
         </List>
       </div>

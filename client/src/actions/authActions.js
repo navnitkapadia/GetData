@@ -83,6 +83,21 @@ export const setCurrentUser = decoded => {
     payload: decoded
   };
 };
+
+
+
+// Set logged in user
+export const publishMessage = (topic, message, id) => dispatch => {
+  axios
+    .post("/api/users/publish-message", {topic: topic, message: message, id: id })
+    .then(res => {
+        console.log("Published");
+    })
+    .catch(err => {
+      console.log('Error', err);
+    }
+    );
+};
 // Set logged in user
 export const setTopic = (topic, id) => dispatch => {
   axios
@@ -98,6 +113,7 @@ export const setTopic = (topic, id) => dispatch => {
     }
     );
 };
+
 export const removeTopicItem = (topicId, id) => dispatch => {
   axios
     .post("/api/users/remove-topic", {topicId: topicId, id: id })

@@ -126,6 +126,10 @@ class Dashboard extends Component {
     onRemoveItem = idx => {
         this.props.removeTopicItem(idx, this.props.auth.user.id);
     }
+    gotoPublish = e => {
+        e.preventDefault();
+        this.props.history.push("/publish-data");
+    }
     onSubmit = e => {
         e.preventDefault();
         if (this.state.topic) {
@@ -164,6 +168,12 @@ class Dashboard extends Component {
                             <Nfc />
                         </ListItemIcon>
                         <ListItemText primary="Add topic" />
+                    </ListItem>
+                    <ListItem button onClick={this.gotoPublish}>
+                        <ListItemIcon >
+                            <Nfc />
+                        </ListItemIcon>
+                        <ListItemText primary="Publish Message" />
                     </ListItem>
                 </List>
             </div>
