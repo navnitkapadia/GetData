@@ -25,6 +25,7 @@ import Toolbar from '@material-ui/core/Toolbar';
 import Typography from '@material-ui/core/Typography';
 import KeyboardReturn from '@material-ui/icons/KeyboardReturn';
 import Nfc from "@material-ui/icons/Nfc";
+import '@vaadin/vaadin-combo-box/theme/material/vaadin-combo-box.js';
 
 const drawerWidth = 240;
 
@@ -82,6 +83,7 @@ class Dashboard extends Component {
       myChart2: {},
       myChart3: {},
       myChart4: {},
+      topic: '',
       mobileOpen: false,
     };
   }
@@ -94,6 +96,11 @@ class Dashboard extends Component {
     this.setState(state => ({ mobileOpen: !state.mobileOpen }));
   };
   componentDidMount() {
+    this.setCharts();
+  }
+
+  setCharts(){
+    this.vaadinListener();
     var myChart1 = new Chart(document.getElementById("lineChart1").getContext("2d"), {
       type: 'line',
       data: {
@@ -140,16 +147,16 @@ class Dashboard extends Component {
         datasets: [{
           data: [],
           backgroundColor: [
-            'rgba(255, 99, 132, 0.2)',
-            'rgba(54, 162, 235, 0.2)',
-            'rgba(255, 206, 86, 0.2)',
-            'rgba(75, 192, 192, 0.2)',
-            'rgba(153, 102, 255, 0.2)',
-            'rgba(255, 159, 64, 0.2)',
-            'rgba(255,99,132,0.2)',
-            'rgba(54, 162, 235, 0.2)',
-            'rgba(255, 206, 86, 0.2)',
-            'rgba(75, 192, 192, 0.2)',
+            'rgba(255, 99, 132, 0.8)',
+            'rgba(54, 162, 235, 0.8)',
+            'rgba(255, 206, 86, 0.8)',
+            'rgba(75, 192, 192, 0.8)',
+            'rgba(153, 102, 255, 0.8)',
+            'rgba(255, 159, 64, 0.8)',
+            'rgba(255,99,132,0.8)',
+            'rgba(54, 162, 235, 0.8)',
+            'rgba(255, 206, 86, 0.8)',
+            'rgba(75, 192, 192, 0.8)',
           ],
           label: "Sensor 4",
           borderColor: '#3e95cd',
@@ -163,10 +170,30 @@ class Dashboard extends Component {
       this.onMessageArrived(message);
     })
   }
+  vaadinListener() {
+    var self = this;
+    var topicBox = this.refs.topic;
+    if(topicBox){
+      topicBox.items = this.props.auth.user.topic;
+    }
+    topicBox.addEventListener('value-changed', ()=>{
+      if(topicBox.value){
+        self.setState({ topic: topicBox.value });
+      }
+      this.removeChartData(this.state.myChart1);
+      this.removeChartData(this.state.myChart2);
+      this.removeChartData(this.state.myChart3);
+      this.removeChartData(this.state.myChart4);
+    })
+  }
   //what is done when a message arrives from the broker
   onMessageArrived(message) {
     var data = message.message;
+    var topic = this.state.topic || message.topic;        
     if (!this.props.auth.user.topic.includes(message.topic)) {
+      return;
+    }
+    if(topic !== message.topic){
       return;
     }
     var today = new Date();
@@ -198,10 +225,14 @@ class Dashboard extends Component {
     chart && chart.update();
   }
   removeData(chart) {
-    if (chart && chart.data && chart.data.labels && chart.data.labels.length > 10) {
+    if (chart && chart.data && chart.data.labels && chart.data.labels.length > 8) {
       chart.data.labels.shift();
       chart.data.datasets[0].data.shift();
     }
+  }
+  removeChartData(chart){
+    chart.data.labels.splice(0,chart.data.labels.length);
+    chart.data.datasets[0].data.splice(0,chart.data.datasets[0].data.length);
   }
   //can be used to reconnect on connection lost
   onConnectionLost(responseObject) {
@@ -318,6 +349,11 @@ class Dashboard extends Component {
         </div>
         <main className={classes.content}>
           <Grid className={classes.gridContainer} container spacing={24}>
+            <Grid item xs={12} sm={12}>
+              <Paper className={classes.paper}>
+                <vaadin-combo-box ref="topic" label="Select topic"></vaadin-combo-box>
+              </Paper>
+            </Grid>
             <Grid item xs={12} sm={6}>
               <Paper className={classes.paper}>
                 <canvas id="lineChart1"></canvas>

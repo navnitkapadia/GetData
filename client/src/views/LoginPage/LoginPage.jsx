@@ -38,6 +38,7 @@ class LoginPage extends React.Component {
       password: "",
       errors: {},
       open: false,
+      openSuccessToast: false,
       showPassword: false
     };
   }
@@ -46,7 +47,7 @@ class LoginPage extends React.Component {
     if (reason === 'clickaway') {
       return;
     }
-
+    this.setState({openSuccessToast: false});
     this.setState({ open: false });
   };
 
@@ -58,10 +59,19 @@ class LoginPage extends React.Component {
       }.bind(this),
       700
     );
-
+    let queryLogin = this.props.location.search;
+    if(queryLogin){
+      let action = queryLogin.split('?')[1].split('=')[1];
+      if(action ==="register-successful"){
+          this.setState({openSuccessToast: true});
+      }
+    } 
     if (this.props.auth.isAuthenticated) {
       this.props.history.push("/dashboard");
     }
+  }
+  componentWillUnmount() {
+    this.setState({openSuccessToast: false});
   }
   componentWillReceiveProps(nextProps) {
     if (nextProps.auth.isAuthenticated) {
@@ -123,13 +133,29 @@ class LoginPage extends React.Component {
               vertical: 'bottom',
               horizontal: 'left',
             }}
+            open={this.state.openSuccessToast}
+            autoHideDuration={6000}
+            onClose={this.handleClose}
+          >
+            <MySnackbarContentWrapper
+              onClose={this.handleClose}
+              variant="success"
+              message="Successfully registered"
+            />
+          </Snackbar>
+
+          <Snackbar
+            anchorOrigin={{
+              vertical: 'bottom',
+              horizontal: 'left',
+            }}
             open={this.state.open}
             autoHideDuration={6000}
             onClose={this.handleClose}
           >
             <MySnackbarContentWrapper
               onClose={this.handleClose}
-              variant="error"
+              variant="success"
               message={errors.isApproved}
             />
           </Snackbar>

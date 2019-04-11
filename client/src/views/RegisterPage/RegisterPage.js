@@ -24,7 +24,6 @@ import TextField from '@material-ui/core/TextField';
 import MySnackbarContentWrapper  from "../../components/Snackbar/MySnackbarContentWrapper";
 import Snackbar from '@material-ui/core/Snackbar';
 import People from "@material-ui/icons/People";
-// import Nfc from "@material-ui/icons/Nfc";
 import IconButton from '@material-ui/core/IconButton';
 import Visibility from '@material-ui/icons/Visibility';
 import VisibilityOff from '@material-ui/icons/VisibilityOff';
@@ -166,25 +165,6 @@ class RegisterPage extends React.Component {
                           ),
                         }}
                       />
-                      {/* <TextField
-                        id="topic"
-                        label="Topic"
-                        className={classes.textField}
-                        type="text"
-                        autoComplete="email"
-                        margin="normal"
-                        error={errors.topic? true: false}
-                        helperText={errors.topic}
-                        value={this.state.topic}
-                        onChange={this.onChange}
-                        InputProps={{
-                          endAdornment: (
-                            <Nfc position="end">
-                              <People className={classes.inputIconsColor} />
-                            </Nfc>
-                          ),
-                        }}
-                      /> */}
                       <TextField
                         id="email"
                         label="Email..."

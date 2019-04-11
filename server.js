@@ -14,6 +14,33 @@ const config = require("./config/config");
 var client = mqtt.connect(config.MqttBroker);
 const Chart = require("./models/Chart");
 const User = require("./models/User");
+var nodemailer = require('nodemailer');
+const { filter } = require('lodash');
+let usersTopic = [];
+
+var transporter = nodemailer.createTransport({
+  service: 'gmail',
+  auth: {
+         user: config.email,
+         pass: config.Password
+     }
+ });
+
+sendMail = (to,value)=>{
+  const mailOptions = { 
+    from: config.fromEmail, // sender address
+    to: to, // list of receivers
+    subject: config.subject, // Subject line
+    text: config.Message + value // plain text body
+  };
+  transporter.sendMail(mailOptions, function (err, info) {
+    if(err)
+      console.log(err)
+    else
+      console.log(info);
+  });
+}
+
 // Bodyparser middleware
 app.use(
   bodyParser.urlencoded({
@@ -34,6 +61,10 @@ client.on('connect', function () {
   User.find({isApproved: true}).then(user => {
     for (i = 0; i < user.length; i++) { 
         for(j=0; j < user[i].topic.length; j++){
+          usersTopic.push({
+            userEmail: user[i].email,
+            topic: user[i].topic[j]
+          });
           client.subscribe(user[i].topic[j]);
           console.log("topics:", user[i].topic[j]);
         }
@@ -75,8 +106,18 @@ client.on('disconnected', function(e){
   client = mqtt.connect(config.MqttBroker);
 })
 client.on('message', function (topic, message) {
-  if(message.toString() === "[object Object]"){
-    var data = JSON.parse(message);
+  var messageString = message.toString();
+  console.log(messageString);
+  function IsValidJSONString(str) {
+      try {
+          JSON.parse(str);
+      } catch (e) {
+          return false;
+      }
+      return true;
+  }
+  if(IsValidJSONString(messageString)){
+    let data = JSON.parse(messageString);
     if(data && typeof data === "object"){
       const newChart = new Chart({
         sensorId: data.id,
@@ -90,9 +131,13 @@ client.on('message', function (topic, message) {
       newChart.save().then()
         .catch(err => console.log("Error:", err));
       socket.emit('chart', {message: data, topic: topic});
+      if(data.value > config.exhaustedValue){
+        let userDetail =  filter(usersTopic, {topic:  topic});
+        userDetail.forEach(function(item){ 
+          sendMail(item.userEmail, data.value);
+        })
+      }
     }
-  } else {
-    console.log(message.toString())
   }
 });
 

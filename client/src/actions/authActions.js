@@ -2,19 +2,26 @@ import axios from "axios";
 import setAuthToken from "../utils/setAuthToken";
 import jwt_decode from "jwt-decode";
 
-import { GET_ERRORS, SET_CURRENT_USER, USER_LOADING, SET_TOPIC, APPROVE_USER, DISAPPROVE_USER } from "./types";
-
+import {
+  GET_ERRORS,
+  SET_CURRENT_USER,
+  USER_LOADING,
+  SET_TOPIC,
+  APPROVE_USER,
+  DISAPPROVE_USER
+} from "./types";
 
 // Approve User
 export const approveUser = id => dispatch => {
-  return axios.post('../api/users/approve', { id: id })
-    .then((res) => {
+  return axios
+    .post("../api/users/approve", { id: id })
+    .then(res => {
       dispatch({
         type: APPROVE_USER
-      })
+      });
       return true;
-    }
-    ).catch(err =>
+    })
+    .catch(err =>
       dispatch({
         type: GET_ERRORS,
         payload: err.response.data
@@ -24,14 +31,15 @@ export const approveUser = id => dispatch => {
 
 // Disapprove User
 export const disapproveUser = id => dispatch => {
-  return axios.post('../api/users/disapprove', { id: id })
-    .then((res) => {
+  return axios
+    .post("../api/users/disapprove", { id: id })
+    .then(res => {
       dispatch({
         type: DISAPPROVE_USER
-      })
+      });
       return true;
-    }
-    ).catch(err =>
+    })
+    .catch(err =>
       dispatch({
         type: GET_ERRORS,
         payload: err.response.data
@@ -42,7 +50,7 @@ export const disapproveUser = id => dispatch => {
 export const registerUser = (userData, history) => dispatch => {
   axios
     .post("/api/users/register", userData)
-    .then(res => history.push("/login"))
+    .then(res => history.push("/login?action=register-successful"))
     .catch(err =>
       dispatch({
         type: GET_ERRORS,
@@ -84,24 +92,25 @@ export const setCurrentUser = decoded => {
   };
 };
 
-
-
 // Set logged in user
 export const publishMessage = (topic, message, id) => dispatch => {
   axios
-    .post("/api/users/publish-message", {topic: topic, message: message, id: id })
+    .post("/api/users/publish-message", {
+      topic: topic,
+      message: message,
+      id: id
+    })
     .then(res => {
-        console.log("Published");
+      dispatchEvent(new CustomEvent('data-published', { bubbles: true}))
     })
     .catch(err => {
-      console.log('Error', err);
-    }
-    );
+      console.log("Error", err);
+    });
 };
 // Set logged in user
 export const setTopic = (topic, id) => dispatch => {
   axios
-    .post("/api/users/topic", {topic: topic, id: id })
+    .post("/api/users/topic", { topic: topic, id: id })
     .then(res => {
       dispatch({
         type: SET_TOPIC,
@@ -109,14 +118,13 @@ export const setTopic = (topic, id) => dispatch => {
       });
     })
     .catch(err => {
-      console.log('Error', err);
-    }
-    );
+      console.log("Error", err);
+    });
 };
 
 export const removeTopicItem = (topicId, id) => dispatch => {
   axios
-    .post("/api/users/remove-topic", {topicId: topicId, id: id })
+    .post("/api/users/remove-topic", { topicId: topicId, id: id })
     .then(res => {
       dispatch({
         type: SET_TOPIC,
@@ -124,9 +132,8 @@ export const removeTopicItem = (topicId, id) => dispatch => {
       });
     })
     .catch(err => {
-      console.log('Error', err);
-    }
-    );
+      console.log("Error", err);
+    });
 };
 // User loading
 export const setUserLoading = () => {

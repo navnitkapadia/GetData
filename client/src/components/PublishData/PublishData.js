@@ -27,6 +27,8 @@ import InputAdornment from "@material-ui/core/InputAdornment";
 import SaveIcon from '@material-ui/icons/Save';
 import Button from '@material-ui/core/Button';
 
+import MySnackbarContentWrapper from "../../components/Snackbar/MySnackbarContentWrapper";
+import Snackbar from '@material-ui/core/Snackbar';
 const drawerWidth = 240;
 
 const styles = theme => ({
@@ -93,8 +95,10 @@ class PublishData extends Component {
         this.state = {
             mobileOpen: false,
             topic: '',
-            message: ''
+            message: '',
+            open: false,
         };
+        this.dataPublish = this.dataPublish.bind(this);
     }
     onLogoutClick = e => {
         e.preventDefault();
@@ -124,7 +128,13 @@ class PublishData extends Component {
     };
     componentDidMount() {
         this.vaadinListener();
-        window.addEventListener("resize", this.updateDimensions);
+        window.addEventListener("data-published", this.dataPublish);
+    }
+    componentWillMount(){
+        window.removeEventListener("data-published", this.dataPublish);
+    }
+    dataPublish(){
+        this.setState({ open: true });
     }
     vaadinListener() {
         var self = this;
@@ -144,6 +154,14 @@ class PublishData extends Component {
         e.preventDefault();
         this.props.history.push("/admin/dashboard");
     };
+
+    handleClose = (event, reason) => {
+        if (reason === 'clickaway') {
+            return;
+        }
+        this.setState({ open: false });
+    };
+
     onRemoveItem = idx => {
         this.props.removeTopicItem(idx, this.props.auth.user.id);
     }
@@ -242,6 +260,21 @@ class PublishData extends Component {
                         </Drawer>
                     </Hidden>
                 </div>
+                <Snackbar
+            anchorOrigin={{
+              vertical: 'bottom',
+              horizontal: 'left',
+            }}
+            open={this.state.open}
+            autoHideDuration={2000}
+            onClose={this.handleClose}
+          >
+            <MySnackbarContentWrapper
+              onClose={this.handleClose}
+              variant="success"
+              message="Your message is published"
+            />
+          </Snackbar>
                 <main className={classes.content}>
                     <Grid justify="center"
                         alignItems="center" className={classes.gridContainer} container spacing={24}>
