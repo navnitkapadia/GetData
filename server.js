@@ -158,7 +158,6 @@ require("./config/passport")(passport);
 // Routes
 app.use("/api/users", users);
 app.use("/api/charts", charts);
-console.log(process.env.NODE_ENV);
 
 // Serve statics assets if in production
 if(process.env.NODE_ENV === 'production') {
