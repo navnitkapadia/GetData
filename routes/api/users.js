@@ -121,6 +121,26 @@ router.post("/topic", (req, res) => {
     });
   });
 });
+
+router.post("/update-sensor-point", (req, res) => {
+  const id = req.body.id;
+  const sensorPoints = req.body.sensorPoints;
+  User.findById(id, function (err, user) {
+    if (err) {
+      return res.status(400).json(err);
+    }
+    user.sensorPoints = sensorPoints
+    eventEmitter.emit('update-sensor-points', user.email, user.sensorPoints);
+    // save the user
+    user.save(function (err) {
+      if (err) {
+        return res.status(400).json(err);
+      }
+      return res.json({ sensorPoints: user.sensorPoints });
+    });
+  });
+});
+
 router.post("/publish-message", (req, res) => {
   const topic = req.body.topic;
   const message = req.body.message;
@@ -183,7 +203,8 @@ router.post("/login", (req, res) => {
           id: user.id,
           name: user.name,
           role: user.role,
-          topic: user.topic
+          topic: user.topic,
+          sensorPoints: user.sensorPoints
         };
         // Sign token
         jwt.sign(

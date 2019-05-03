@@ -12,6 +12,7 @@ const TopicList = memo(props => (
               return <TopicListItem
               text={todo}
               key={`TodoItem.${idx}`}
+              onListItemClick={() => props.onListItemClick(todo)}
               divider={idx !== props.items.length - 1}
               onButtonClick={() => props.onItemRemove(idx)}
               onCheckBoxToggle={() => props.onItemCheck(idx)}

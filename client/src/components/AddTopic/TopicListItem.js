@@ -9,7 +9,7 @@ import {
 import DeleteOutlined from "@material-ui/icons/DeleteOutlined";
 
 const TopicListItem = memo(props => (
-  <ListItem divider={props.divider}>
+  <ListItem divider={props.divider} onClick={props.onListItemClick}>
     <ListItemText primary={props.text} />
     <ListItemSecondaryAction>
       <IconButton aria-label="Delete Todo" onClick={props.onButtonClick}>
