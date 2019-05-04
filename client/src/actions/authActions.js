@@ -8,7 +8,8 @@ import {
   USER_LOADING,
   SET_TOPIC,
   APPROVE_USER,
-  DISAPPROVE_USER
+  DISAPPROVE_USER,
+  UPDATE_SENSORS
 } from "./types";
 
 // Approve User
@@ -101,7 +102,7 @@ export const publishMessage = (topic, message, id) => dispatch => {
       id: id
     })
     .then(res => {
-      dispatchEvent(new CustomEvent('data-published', { bubbles: true}))
+      dispatchEvent(new CustomEvent("data-published", { bubbles: true }));
     })
     .catch(err => {
       console.log("Error", err);
@@ -135,6 +136,24 @@ export const removeTopicItem = (topicId, id) => dispatch => {
       console.log("Error", err);
     });
 };
+
+export const updateSensorPoints = (id, sensorPoints) => dispatch => {
+  axios
+    .post("/api/users/update-sensor-point", {
+      sensorPoints: sensorPoints,
+      id: id
+    })
+    .then(res => {
+      dispatch({
+        type: UPDATE_SENSORS,
+        payload: res.data.sensorPoints
+      });
+    })
+    .catch(err => {
+      console.log("Error", err);
+    });
+};
+
 // User loading
 export const setUserLoading = () => {
   return {

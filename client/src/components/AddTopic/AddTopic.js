@@ -130,6 +130,9 @@ class Dashboard extends Component {
   onRemoveItem = idx => {
     this.props.removeTopicItem(idx, this.props.auth.user.id);
   };
+  onListItemClick = topic => {
+    this.props.history.push("/dashboard?topic="+  topic);
+  }
   gotoPublish = e => {
     e.preventDefault();
     this.props.history.push("/publish-data");
@@ -147,8 +150,7 @@ class Dashboard extends Component {
       (this.props &&
         this.props.auth &&
         this.props.auth.user &&
-        this.props.auth.user.topic) ||
-      [];
+        this.props.auth.user.topic) || [];
     const drawer = (
       <div>
         <List>
@@ -277,6 +279,7 @@ class Dashboard extends Component {
                 </form>
                 <TopicList
                   items={topic}
+                  onListItemClick={topic => this.onListItemClick(topic)}
                   onItemRemove={idx => this.onRemoveItem(idx)}
                 />
               </Paper>

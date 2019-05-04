@@ -30,6 +30,10 @@ const UserSchema = new Schema({
   date: {
     type: Date,
     default: Date.now
+  },
+  sensorPoints: {
+    type: Object,
+    required: false
   }
 });
 

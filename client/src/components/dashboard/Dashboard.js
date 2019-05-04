@@ -1,7 +1,7 @@
 import React, { Component } from "react";
 import PropTypes from "prop-types";
 import { connect } from "react-redux";
-import { logoutUser } from "../../actions/authActions";
+import { logoutUser, updateSensorPoints } from "../../actions/authActions";
 import * as Chart from 'chart.js';
 import { connectSocket } from './socketConnection';
 import { withStyles } from '@material-ui/core/styles';
@@ -26,6 +26,8 @@ import Typography from '@material-ui/core/Typography';
 import KeyboardReturn from '@material-ui/icons/KeyboardReturn';
 import Nfc from "@material-ui/icons/Nfc";
 import '@vaadin/vaadin-combo-box/theme/material/vaadin-combo-box.js';
+import TextField from "@material-ui/core/TextField";
+import Button from "@material-ui/core/Button"
 
 const drawerWidth = 240;
 
@@ -84,6 +86,12 @@ class Dashboard extends Component {
       myChart3: {},
       myChart4: {},
       topic: '',
+      sensorPoints: {
+        sensor1: 0,
+        sensor2: 0,
+        sensor3: 0,
+        sensor4: 0
+      },
       mobileOpen: false,
     };
   }
@@ -97,8 +105,24 @@ class Dashboard extends Component {
   };
   componentDidMount() {
     this.setCharts();
+    let user = this.props.auth.user;
+    let queryLogin = this.props.location.search;
+    if(queryLogin){
+      let action = queryLogin.split('?')[1].split('=')[1];
+        if(action){
+          this.setState({ topic: action });
+        }
+    }
+    if(!this.state.topic && user && user.topic && user.topic.length){
+      this.setState({ topic: user.topic[0] });
+    }
   }
-
+  componentWillUpdate(nextProps, nextState) {
+    var topicBox = this.refs.topic;
+    if(topicBox && nextState.topic && nextState.topic !== topicBox.value){
+      topicBox.value = nextState.topic
+    }
+  }
   setCharts(){
     this.vaadinListener();
     var myChart1 = new Chart(document.getElementById("lineChart1").getContext("2d"), {
@@ -172,6 +196,7 @@ class Dashboard extends Component {
   }
   vaadinListener() {
     var self = this;
+    let user= this.props.auth.user;
     var topicBox = this.refs.topic;
     if(topicBox){
       topicBox.items = this.props.auth.user.topic;
@@ -179,20 +204,65 @@ class Dashboard extends Component {
     topicBox.addEventListener('value-changed', ()=>{
       if(topicBox.value){
         self.setState({ topic: topicBox.value });
+        self._updateSensorPoints(user.sensorPoints, topicBox.value);
       }
-      this.removeChartData(this.state.myChart1);
-      this.removeChartData(this.state.myChart2);
-      this.removeChartData(this.state.myChart3);
-      this.removeChartData(this.state.myChart4);
+      this._removeMultiChartData();
     })
+  }
+
+  _updateSensorPoints(sensorPoints, topic) {
+    if(sensorPoints[topic]){
+      this.setState({sensorPoints: sensorPoints[topic]});
+    } else {
+      this.setState({sensorPoints: {
+        sensor1: 0,
+        sensor2: 0,
+        sensor3: 0,
+        sensor4: 0
+      }});
+    }
+  }
+
+  _removeMultiChartData(){
+    if(this.state.myChart1 && Object.keys(this.state.myChart1).length){
+      this.removeChartData(this.state.myChart1);
+    }
+    if(this.state.myChart2 && Object.keys(this.state.myChart2).length){
+      this.removeChartData(this.state.myChart2);
+    }
+    if(this.state.myChart3 && Object.keys(this.state.myChart3).length){
+      this.removeChartData(this.state.myChart3);
+    }
+    if(this.state.myChart4 && Object.keys(this.state.myChart4).length){
+      this.removeChartData(this.state.myChart4);
+    }
+  }
+
+  onChange = e => {
+    let sensorPoints = {};
+    sensorPoints[e.target.id] = e.target.value;
+    this.setState((state)=>{
+      return {
+        ...state,
+        sensorPoints: {
+          ...state.sensorPoints,
+          ...sensorPoints
+        }
+      }
+     })
+  };
+
+  onSensorPointUpdate(){
+    let sensorPointsuser = this.props.auth.user.sensorPoints;
+    if(this.state.topic){
+      sensorPointsuser[this.state.topic] = this.state.sensorPoints;
+      this.props.updateSensorPoints(this.props.auth.user.id, sensorPointsuser);
+    }
   }
   //what is done when a message arrives from the broker
   onMessageArrived(message) {
     var data = message.message;
-    var topic = this.state.topic || message.topic;        
-    if (!this.props.auth.user.topic.includes(message.topic)) {
-      return;
-    }
+    var topic = this.state.topic;
     if(topic !== message.topic){
       return;
     }
@@ -238,6 +308,7 @@ class Dashboard extends Component {
   onConnectionLost(responseObject) {
     console.log("connection lost: " + responseObject.errorMessage);
   };
+  
   onWebAppClientClick = e => {
     e.preventDefault();
     this.props.history.push("/admin/dashboard");
@@ -356,21 +427,106 @@ class Dashboard extends Component {
             </Grid>
             <Grid item xs={12} sm={6}>
               <Paper className={classes.paper}>
+                <div>
+                <TextField
+                    id="sensor1"
+                    label="Add point"
+                    className={classes.textField}
+                    type="text"
+                    autoComplete="topic"
+                    margin="normal"
+                    value={this.state.sensorPoints.sensor1}
+                    onChange={this.onChange}
+                  />
+                   <Button
+                    variant="contained"
+                    onClick={this.onSensorPointUpdate.bind(this)}
+                    size="small"
+                    type="button"
+                    className={classes.button}
+                  >
+                    Save
+                  </Button>
+                </div>
                 <canvas id="lineChart1"></canvas>
               </Paper>
             </Grid>
             <Grid item xs={12} sm={6}>
               <Paper className={classes.paper}>
+              <div>
+                <TextField
+                    id="sensor2"
+                    label="sensor 2"
+                    className={classes.textField}
+                    type="text"
+                    autoComplete="topic"
+                    margin="normal"
+                    value={this.state.sensorPoints.sensor2}
+                    onChange={this.onChange}
+                  />
+                    <Button
+                    variant="contained"
+                    onClick={this.onSensorPointUpdate.bind(this)}
+                    size="small"
+                    type="button"
+                    className={classes.button}
+                  >
+                    Save
+                  </Button>
+                </div>
                 <canvas id="lineChart2"></canvas>
               </Paper>
             </Grid>
             <Grid item xs={12} sm={6}>
               <Paper className={classes.paper}>
+              <div>
+                <TextField
+                    id="sensor3"
+                    label="sensor 3"
+                    className={classes.textField}
+                    type="text"
+                    autoComplete="topic"
+                    margin="normal"
+                    value={this.state.sensorPoints.sensor3}
+                    onChange={this.onChange}
+                  />
+                  <Button
+                    variant="contained"
+                    onClick={this.onSensorPointUpdate.bind(this)}
+                    size="small"
+                    type="button"
+                    className={classes.button}
+                  >
+                    Save
+                  </Button>
+                </div>
+                
                 <canvas id="lineChart3"></canvas>
               </Paper>
             </Grid>
             <Grid item xs={12} sm={6} >
               <Paper className={classes.paper}>
+              <div>
+                <TextField
+                    id="sensor4"
+                    label="sensor 4"
+                    className={classes.textField}
+                    type="text"
+                    autoComplete="topic"
+                    margin="normal"
+                    value={this.state.sensorPoints.sensor4}
+                    onChange={this.onChange}
+                  />
+                    <Button
+                    variant="contained"
+                    onClick={this.onSensorPointUpdate.bind(this)}
+                    size="small"
+                    type="button"
+                    className={classes.button}
+                  >
+                    Save
+                  </Button>
+                </div>
                 <canvas id="lineChart4"></canvas>
               </Paper>
             </Grid>
@@ -387,6 +543,7 @@ class Dashboard extends Component {
 }
 
 Dashboard.propTypes = {
+  updateSensorPoints: PropTypes.func.isRequired,
   logoutUser: PropTypes.func.isRequired,
   auth: PropTypes.object.isRequired
 };
@@ -397,5 +554,5 @@ const mapStateToProps = state => ({
 
 export default connect(
   mapStateToProps,
-  { logoutUser }
+  { logoutUser, updateSensorPoints }
 )(withStyles(styles, { withTheme: true })(Dashboard));

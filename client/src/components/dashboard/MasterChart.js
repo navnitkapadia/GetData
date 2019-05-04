@@ -99,7 +99,7 @@ class MasterChart extends Component {
     }
   
     componentWillReceiveProps(nextProps) {
-        if (nextProps.chartData) {
+      if (nextProps.chartData && Object.keys(nextProps.chartData).length) {
             var data=[];
             nextProps.chartData.forEach(function (item) {
                 data.push({
