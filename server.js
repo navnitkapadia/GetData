@@ -52,8 +52,8 @@ var socket = io.on("connection", socket => {
   });
   return socket;
 });
-
 client.on("connect", function() {
+  console.log('connected');
   User.find({ isApproved: true }).then(user => {
     for (i = 0; i < user.length; i++) {
       for (j = 0; j < user[i].topic.length; j++) {
@@ -62,10 +62,12 @@ client.on("connect", function() {
           sensorPoints: user[i].sensorPoints
         };
         client.subscribe(user[i].topic[j]);
+        console.log("topics:", user[i].topic[j]);
       }
     }
   });
   console.log("client has subscribed successfully");
+  console.log(userDetails);
 });
 
 eventEmitter.on("update-subscription", id => {
@@ -97,8 +99,9 @@ eventEmitter.on("publish-message", (topic, message) => {
 });
 
 eventEmitter.on("update-sensor-points", (email, sensorPoints) => {
-  let personDetail = find(userDetails, { userEmail: email });
-  personDetail.sensorPoints = sensorPoints;
+  console.log(userDetails);
+  // let personDetail = find(userDetails, { userEmail: email });
+  // personDetail.sensorPoints = sensorPoints;
 });
 
 client.on("disconnecting", function(e) {

@@ -28,7 +28,7 @@ import Nfc from "@material-ui/icons/Nfc";
 import '@vaadin/vaadin-combo-box/theme/material/vaadin-combo-box.js';
 import TextField from "@material-ui/core/TextField";
 import Button from "@material-ui/core/Button";
-import _ from 'lodash';
+// import _ from 'lodash';
 const drawerWidth = 240;
 
 const styles = theme => ({
@@ -105,40 +105,25 @@ class Dashboard extends Component {
   };
 
   componentWillUpdate(nextProps, nextState) {
-    if(!nextProps.auth.user.sensorPoints[nextState.topic]){
-      if(_.isEqual(this.state.sensorPoints, {
-        sensor1: 0,
-        sensor2: 0,
-        sensor3: 0,
-        sensor4: 0
-      })){
-        return;
-      }
-      this.setState({sensorPoints: {
-        sensor1: 0,
-        sensor2: 0,
-        sensor3: 0,
-        sensor4: 0
-      }});
-    }
-    if(nextProps.auth.user.sensorPoints && nextState.topic && nextProps.auth.user.sensorPoints[nextState.topic]){
-        if(_.isEqual(this.state.sensorPoints, this.props.auth.user.sensorPoints[nextState.topic])){
-          return;
-        }
-        this.setState({sensorPoints: this.props.auth.user.sensorPoints[nextState.topic]});
-        console.log(this.state);
+    var topicBox = this.refs.topic;
+    if(topicBox && nextState.topic && nextState.topic !== topicBox.value){
+      topicBox.value = nextState.topic
     }
   }
 
   componentDidMount() {
     this.setCharts();
+    let user = this.props.auth.user;
     let queryLogin = this.props.location.search;
     if(queryLogin){
       let action = queryLogin.split('?')[1].split('=')[1];
         if(action){
           this.setState({ topic: action });
         }
-    } 
+    }
+    if(!this.state.topic && user && user.topic && user.topic.length){
+      this.setState({ topic: user.topic[0] });
+    }
   }
 
   setCharts(){
@@ -214,6 +199,7 @@ class Dashboard extends Component {
   }
   vaadinListener() {
     var self = this;
+    let user= this.props.auth.user;
     var topicBox = this.refs.topic;
     if(topicBox){
       topicBox.items = this.props.auth.user.topic;
@@ -221,31 +207,41 @@ class Dashboard extends Component {
     topicBox.addEventListener('value-changed', ()=>{
       if(topicBox.value){
         self.setState({ topic: topicBox.value });
+        self._updateSensorPoints(user.sensorPoints, topicBox.value);
       }
-      this.removeChartData(this.state.myChart1);
-      this.removeChartData(this.state.myChart2);
-      this.removeChartData(this.state.myChart3);
-      this.removeChartData(this.state.myChart4);
+      this._removeMultiChartData();
     })
+  }
+  _updateSensorPoints(sensorPoints, topic) {
+    if(sensorPoints[topic]){
+      this.setState({sensorPoints: sensorPoints[topic]});
+    } else {
+      this.setState({sensorPoints: {
+        sensor1: 0,
+        sensor2: 0,
+        sensor3: 0,
+        sensor4: 0
+      }});
+    }
+  }
+  _removeMultiChartData(){
+    if(this.state.myChart1 && Object.keys(this.state.myChart1).length){
+      this.removeChartData(this.state.myChart1);
+    }
+    if(this.state.myChart2 && Object.keys(this.state.myChart2).length){
+      this.removeChartData(this.state.myChart2);
+    }
+    if(this.state.myChart3 && Object.keys(this.state.myChart3).length){
+      this.removeChartData(this.state.myChart3);
+    }
+    if(this.state.myChart4 && Object.keys(this.state.myChart4).length){
+      this.removeChartData(this.state.myChart4);
+    }
   }
   //what is done when a message arrives from the broker
   onMessageArrived(message) {
-    var topicBox = this.refs.topic;
     var data = message.message;
-    if(!this.state.topic && this.props.auth && this.props.auth.user && this.props.auth.user.topic){
-      this.setState({ topic: this.props.auth.user.topic[0] });
-      if(topicBox){
-        topicBox.value = this.state.topic
-      }
-    }
-    if(topicBox && (!topicBox.value || topicBox.value !== this.state.topic)){
-      topicBox.value = this.state.topic
-    }
-
-    var topic = this.state.topic || message.topic;
-    if (!this.props.auth.user.topic.includes(message.topic)) {
-      return;
-    }
+    var topic = this.state.topic;
     if(topic !== message.topic){
       return;
     }
@@ -309,11 +305,10 @@ class Dashboard extends Component {
   };
 
   onSensorPointUpdate(){
-    let sensorPoint = {};
+    let sensorPointsuser = this.props.auth.user.sensorPoints;
     if(this.state.topic){
-      sensorPoint[this.state.topic] = this.state.sensorPoints;
-      console.log(sensorPoint);
-      this.props.updateSensorPoints(this.props.auth.user.id, sensorPoint);
+      sensorPointsuser[this.state.topic] = this.state.sensorPoints;
+      this.props.updateSensorPoints(this.props.auth.user.id, sensorPointsuser);
     }
   }
   onWebAppClientClick = e => {
@@ -342,8 +337,6 @@ class Dashboard extends Component {
   }
   render() {
     const { classes, theme } = this.props;
-    const {sensorPoints} = this.state;
-    const {sensor1, sensor2, sensor3, sensor4} = sensorPoints;
     const drawer = (
       <div>
         <List>
@@ -443,7 +436,7 @@ class Dashboard extends Component {
                     type="text"
                     autoComplete="topic"
                     margin="normal"
-                    value={sensor1}
+                    value={this.state.sensorPoints.sensor1}
                     onChange={this.onChange}
                   />
                    <Button
@@ -469,7 +462,7 @@ class Dashboard extends Component {
                     type="text"
                     autoComplete="topic"
                     margin="normal"
-                    value={sensor2}
+                    value={this.state.sensorPoints.sensor2}
                     onChange={this.onChange}
                   />
                     <Button
@@ -495,7 +488,7 @@ class Dashboard extends Component {
                     type="text"
                     autoComplete="topic"
                     margin="normal"
-                    value={sensor3}
+                    value={this.state.sensorPoints.sensor3}
                     onChange={this.onChange}
                   />
                   <Button
@@ -522,7 +515,7 @@ class Dashboard extends Component {
                     type="text"
                     autoComplete="topic"
                     margin="normal"
-                    value={sensor4}
+                    value={this.state.sensorPoints.sensor4}
                     onChange={this.onChange}
                   />
                     <Button
