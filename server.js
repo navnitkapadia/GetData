@@ -33,7 +33,7 @@ sendMail = (to, value) => {
   };
   transporter.sendMail(mailOptions, function(err, info) {
     if (err) console.log(err);
-    else console.log('sent');
+    else console.log("sent");
   });
 };
 
@@ -53,21 +53,26 @@ var socket = io.on("connection", socket => {
   return socket;
 });
 client.on("connect", function() {
-  console.log('connected');
+  console.log("connected");
   User.find({ isApproved: true }).then(user => {
     for (i = 0; i < user.length; i++) {
       for (j = 0; j < user[i].topic.length; j++) {
-        userDetails[user[i].topic[j]] = {
-          userEmail: user[i].email,
-          sensorPoints: user[i].sensorPoints
+        let topic = user[i].topic[j];
+        let userEmail = user[i].email;
+        let sensorPoints;
+        if (user[i].sensorPoints) {
+          sensorPoints = user[i].sensorPoints[topic];
+        }
+        userDetails[topic] = {
+          userEmail: userEmail,
+          sensorPoints: sensorPoints
         };
-        client.subscribe(user[i].topic[j]);
-        console.log("topics:", user[i].topic[j]);
+        client.subscribe(topic);
+        console.log("topic",topic);
       }
     }
   });
   console.log("client has subscribed successfully");
-  console.log(userDetails);
 });
 
 eventEmitter.on("update-subscription", id => {
@@ -99,9 +104,8 @@ eventEmitter.on("publish-message", (topic, message) => {
 });
 
 eventEmitter.on("update-sensor-points", (email, sensorPoints) => {
-  console.log(userDetails);
-  // let personDetail = find(userDetails, { userEmail: email });
-  // personDetail.sensorPoints = sensorPoints;
+  let personDetail = find(userDetails, { userEmail: email });
+  personDetail.sensorPoints = sensorPoints;
 });
 
 client.on("disconnecting", function(e) {
@@ -139,22 +143,22 @@ client.on("message", function(topic, message) {
       socket.emit("chart", { message: data, topic: topic });
       let userDetail = userDetails[topic];
       if (data.id === "Sensor 1") {
-        if (userDetail.sensorPoints.sensor1 > data.value) {
+        if (userDetail.sensorPoints.sensor1 && userDetail.sensorPoints.sensor1 <= data.value) {
           sendMail(userDetail.userEmail, data.value);
         }
       }
       if (data.id === "Sensor 2") {
-        if (userDetail.sensorPoints.sensor2 > data.value) {
+        if (userDetail.sensorPoints.sensor2 && userDetail.sensorPoints.sensor2 <= data.value) {
           sendMail(userDetail.userEmail, data.value);
         }
       }
       if (data.id === "Sensor 3") {
-        if (userDetail.sensorPoints.sensor3 > data.value) {
+        if (userDetail.sensorPoints.sensor3 && userDetail.sensorPoints.sensor3 <= data.value) {
           sendMail(userDetail.userEmail, data.value);
         }
       }
       if (data.id === "Sensor 4") {
-        if (userDetail.sensorPoints.sensor4 > data.value) {
+        if (userDetail.sensorPoints.sensor4 && userDetail.sensorPoints.sensor4 <= data.value) {
           sendMail(userDetail.userEmail, data.value);
         }
       }

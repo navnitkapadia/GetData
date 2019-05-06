@@ -22,13 +22,13 @@ import ListItemIcon from '@material-ui/core/ListItemIcon';
 import ListItemText from '@material-ui/core/ListItemText';
 import MenuIcon from '@material-ui/icons/Menu';
 import Toolbar from '@material-ui/core/Toolbar';
-import Typography from '@material-ui/core/Typography';
 import KeyboardReturn from '@material-ui/icons/KeyboardReturn';
 import Nfc from "@material-ui/icons/Nfc";
 import '@vaadin/vaadin-combo-box/theme/material/vaadin-combo-box.js';
 import TextField from "@material-ui/core/TextField";
+import Typography from '@material-ui/core/Typography';
 import Button from "@material-ui/core/Button";
-// import _ from 'lodash';
+import 'typeface-roboto';
 const drawerWidth = 240;
 
 const styles = theme => ({
@@ -76,6 +76,11 @@ const styles = theme => ({
     flexGrow: 1,
     padding: theme.spacing.unit * 3,
   },
+  sensorPoints: {
+    display: 'flex',
+    justifyContent: 'center',
+    alignItems: 'center'
+  }
 });
 class Dashboard extends Component {
   constructor(props) {
@@ -120,6 +125,7 @@ class Dashboard extends Component {
         if(action){
           this.setState({ topic: action });
         }
+      return;
     }
     if(!this.state.topic && user && user.topic && user.topic.length){
       this.setState({ topic: user.topic[0] });
@@ -207,14 +213,15 @@ class Dashboard extends Component {
     topicBox.addEventListener('value-changed', ()=>{
       if(topicBox.value){
         self.setState({ topic: topicBox.value });
-        self._updateSensorPoints(user.sensorPoints, topicBox.value);
+        let sensorPoints = user.sensorPoints && user.sensorPoints[topicBox.value];
+        self._updateSensorPoints(sensorPoints, topicBox.value);
       }
       this._removeMultiChartData();
     })
   }
   _updateSensorPoints(sensorPoints, topic) {
-    if(sensorPoints[topic]){
-      this.setState({sensorPoints: sensorPoints[topic]});
+    if(sensorPoints){
+      this.setState({sensorPoints: sensorPoints});
     } else {
       this.setState({sensorPoints: {
         sensor1: 0,
@@ -305,12 +312,13 @@ class Dashboard extends Component {
   };
 
   onSensorPointUpdate(){
-    let sensorPointsuser = this.props.auth.user.sensorPoints;
+    let sensorPointsuser = this.props.auth.user.sensorPoints || {};
     if(this.state.topic){
       sensorPointsuser[this.state.topic] = this.state.sensorPoints;
       this.props.updateSensorPoints(this.props.auth.user.id, sensorPointsuser);
     }
   }
+  
   onWebAppClientClick = e => {
     e.preventDefault();
     this.props.history.push("/admin/dashboard");
@@ -337,6 +345,7 @@ class Dashboard extends Component {
   }
   render() {
     const { classes, theme } = this.props;
+    const email = this.props.auth.user.email;
     const drawer = (
       <div>
         <List>
@@ -424,11 +433,12 @@ class Dashboard extends Component {
             <Grid item xs={12} sm={12}>
               <Paper className={classes.paper}>
                 <vaadin-combo-box ref="topic" label="Select topic"></vaadin-combo-box>
+                <Typography variant="body1" gutterBottom>{email}</Typography>
               </Paper>
             </Grid>
             <Grid item xs={12} sm={6}>
               <Paper className={classes.paper}>
-                <div>
+                <div className={classes.sensorPoints}>
                 <TextField
                     id="sensor1"
                     label="Add point"
@@ -454,7 +464,7 @@ class Dashboard extends Component {
             </Grid>
             <Grid item xs={12} sm={6}>
               <Paper className={classes.paper}>
-              <div>
+              <div className={classes.sensorPoints}>
                 <TextField
                     id="sensor2"
                     label="sensor 2"
@@ -480,7 +490,7 @@ class Dashboard extends Component {
             </Grid>
             <Grid item xs={12} sm={6}>
               <Paper className={classes.paper}>
-              <div>
+              <div className={classes.sensorPoints}>
                 <TextField
                     id="sensor3"
                     label="sensor 3"
@@ -507,7 +517,7 @@ class Dashboard extends Component {
             </Grid>
             <Grid item xs={12} sm={6} >
               <Paper className={classes.paper}>
-              <div>
+              <div className={classes.sensorPoints}>
                 <TextField
                     id="sensor4"
                     label="sensor 4"

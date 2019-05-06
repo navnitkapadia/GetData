@@ -1,11 +1,11 @@
 module.exports = {
-    MqttBroker: "mqtt://test.mosquitto.org",
+    MqttBroker: "mqtt://iot.eclipse.org",
     MqttTopic: "mydevice",
-    Email: "navnitkapadia@gmail.com",
-    Password: "kapadia123",
+    Email: "notifysensor@gmail.com",
+    Password: "Sensor1947",
     exhaustedValue: 50,
-    fromEmail: "infronix@gmail.com",
+    fromEmail: "notifysensor@gmail.com",
     subject: 'Temprature',
-    Message: ''
+    Message: 'your sensor value is'
 };
   

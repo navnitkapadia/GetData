@@ -7,9 +7,11 @@ import {
   ListItemSecondaryAction
 } from "@material-ui/core";
 import DeleteOutlined from "@material-ui/icons/DeleteOutlined";
-
+const listItemStyle = {
+  cursor: 'pointer'
+}
 const TopicListItem = memo(props => (
-  <ListItem divider={props.divider} onClick={props.onListItemClick}>
+  <ListItem style={listItemStyle} divider={props.divider} onClick={props.onListItemClick}>
     <ListItemText primary={props.text} />
     <ListItemSecondaryAction>
       <IconButton aria-label="Delete Todo" onClick={props.onButtonClick}>
