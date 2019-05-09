@@ -19,7 +19,28 @@ import Dashboard from "./components/dashboard/Dashboard";
 import AdminDashboard from "./components/admin/AdminDashboard";
 import AddTopic from "./components/AddTopic/AddTopic";
 import PublishData from "./components/PublishData/PublishData";
+import Axios from "axios";
 
+const refreshUser = (id) =>{
+  Axios
+    .post("/api/users/refresh", {id: id })
+    .then(res => {
+        // Set token to localStorage
+        const { token } = res.data;
+        if(token){
+          localStorage.setItem("jwtToken", token);
+          // Set token to Auth header
+          setAuthToken(token);
+          // Decode token to get user data
+          const decoded = jwt_decode(token);
+          // Set current user
+          store.dispatch(setCurrentUser(decoded));
+        }
+    })
+    .catch(err => {
+      console.log("Error", err);
+    });
+}
 // Check for token to keep user logged in
 if (localStorage.jwtToken) {
   // Set auth token header auth
@@ -28,6 +49,7 @@ if (localStorage.jwtToken) {
   // Decode token and get user info and exp
   const decoded = jwt_decode(token);
   // Set user and isAuthenticated
+  refreshUser(decoded.id);
   store.dispatch(setCurrentUser(decoded));
   // Check for expired token
   const currentTime = Date.now() / 1000; // to get in milliseconds

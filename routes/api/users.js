@@ -167,6 +167,37 @@ router.post("/remove-topic", (req, res) => {
   });
 });
 
+router.post("/refresh", (req, res) => {
+  const id = req.body.id;
+  User.findById(id, function (err, user) {
+    if (err) {
+      return res.status(400).json(err);
+    }
+    // save the user
+    var payload={
+      id: user.id,
+      name: user.name,
+      email: user.email,
+      role: user.role,
+      topic: user.topic,
+      sensorPoints: user.sensorPoints
+    }
+    jwt.sign(
+      payload,
+      keys.secretOrKey,
+      {
+        expiresIn: 86400 // 1 year in seconds
+      },
+      (err, token) => {
+        res.json({
+          success: true,
+          token: "Bearer " + token
+        });
+      }
+    );
+  });
+});
+
 // @route POST api/users/login
 // @desc Login user and return JWT token
 // @access Public
