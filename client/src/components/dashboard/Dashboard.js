@@ -1,7 +1,7 @@
 import React, { Component } from "react";
 import PropTypes from "prop-types";
 import { connect } from "react-redux";
-import { logoutUser, updateSensorPoints } from "../../actions/authActions";
+import { logoutUser, updateSensorPoints, updateMobile } from "../../actions/authActions";
 import * as Chart from 'chart.js';
 import { connectSocket } from './socketConnection';
 import { withStyles } from '@material-ui/core/styles';
@@ -28,6 +28,7 @@ import '@vaadin/vaadin-combo-box/theme/material/vaadin-combo-box.js';
 import TextField from "@material-ui/core/TextField";
 import Typography from '@material-ui/core/Typography';
 import Button from "@material-ui/core/Button";
+import { isEqual } from 'lodash';
 import 'typeface-roboto';
 const drawerWidth = 240;
 
@@ -97,6 +98,7 @@ class Dashboard extends Component {
         sensor3: 0,
         sensor4: 0
       },
+      mobile: '',
       mobileOpen: false
     };
   }
@@ -115,7 +117,18 @@ class Dashboard extends Component {
       topicBox.value = nextState.topic
     }
   }
-
+  componentWillReceiveProps(nextProps){
+    var topicBox = this.refs.topic;
+    var stateMobile = this.state.mobile;
+    var mobile = nextProps.auth.user.mobile;
+    var sensorPoints = nextProps.auth.user.sensorPoints;
+    if(sensorPoints && topicBox && sensorPoints[topicBox.value] && !isEqual(this.state.sensorPoints, sensorPoints[topicBox.value])){
+      this._updateSensorPoints(sensorPoints[topicBox.value]);
+    }
+    if(stateMobile !== mobile){
+      this.setState({mobile: mobile ? mobile: ''});
+    }
+  }
   componentDidMount() {
     this.setCharts();
     let user = this.props.auth.user;
@@ -126,6 +139,9 @@ class Dashboard extends Component {
           this.setState({ topic: action });
         }
       return;
+    }
+    if(user.mobile){
+      this.setState({mobile: user.mobile});
     }
     if(!this.state.topic && user && user.topic && user.topic.length){
       this.setState({ topic: user.topic[0] });
@@ -214,12 +230,12 @@ class Dashboard extends Component {
       if(topicBox.value){
         self.setState({ topic: topicBox.value });
         let sensorPoints = user.sensorPoints && user.sensorPoints[topicBox.value];
-        self._updateSensorPoints(sensorPoints, topicBox.value);
+        self._updateSensorPoints(sensorPoints);
       }
       this._removeMultiChartData();
     })
   }
-  _updateSensorPoints(sensorPoints, topic) {
+  _updateSensorPoints(sensorPoints) {
     if(sensorPoints){
       this.setState({sensorPoints: sensorPoints});
     } else {
@@ -297,6 +313,9 @@ class Dashboard extends Component {
     console.log("connection lost: " + responseObject.errorMessage);
   };
 
+  onMobileChange = e => {
+    this.setState({ mobile: e.target.value });
+  }
   onChange = e => {
     let sensorPoints = {};
     sensorPoints[e.target.id] = e.target.value;
@@ -315,10 +334,14 @@ class Dashboard extends Component {
     let sensorPointsuser = this.props.auth.user.sensorPoints || {};
     if(this.state.topic){
       sensorPointsuser[this.state.topic] = this.state.sensorPoints;
-      this.props.updateSensorPoints(this.props.auth.user.id, sensorPointsuser);
+      this.props.updateSensorPoints(this.props.auth.user.id, sensorPointsuser, this.state.topic);
     }
   }
   
+  onMobileUpdate(){
+      this.props.updateMobile(this.props.auth.user.id, this.state.mobile);
+  }
+
   onWebAppClientClick = e => {
     e.preventDefault();
     this.props.history.push("/admin/dashboard");
@@ -433,7 +456,29 @@ class Dashboard extends Component {
             <Grid item xs={12} sm={12}>
               <Paper className={classes.paper}>
                 <vaadin-combo-box ref="topic" label="Select topic"></vaadin-combo-box>
-                <Typography variant="body1" gutterBottom>{email}</Typography>
+                <Typography variant="body1" gutterBottom>Email: {email}</Typography>
+                <div className={classes.sensorPoints}>
+                <TextField
+                    id="mobile"
+                    label="Mobile"
+                    className={classes.textField}
+                    type="text"
+                    autoComplete="mobile"
+                    margin="normal"
+                    value={this.state.mobile}
+                    onChange={this.onMobileChange}
+                  />
+                  <Button
+                    variant="contained"
+                    onClick={this.onMobileUpdate.bind(this)}
+                    size="small"
+                    type="button"
+                    className={classes.button}
+                  >
+                    Save
+                  </Button>
+
+                </div>
               </Paper>
             </Grid>
             <Grid item xs={12} sm={6}>
@@ -556,7 +601,8 @@ class Dashboard extends Component {
 Dashboard.propTypes = {
   updateSensorPoints: PropTypes.func.isRequired,
   logoutUser: PropTypes.func.isRequired,
-  auth: PropTypes.object.isRequired
+  auth: PropTypes.object.isRequired,
+  updateMobile: PropTypes.func.isRequired
 };
 
 const mapStateToProps = state => ({
@@ -565,5 +611,5 @@ const mapStateToProps = state => ({
 
 export default connect(
   mapStateToProps,
-  { logoutUser, updateSensorPoints }
-)(withStyles(styles, { withTheme: true })(Dashboard));
+  { logoutUser, updateSensorPoints, updateMobile }
+  )(withStyles(styles, { withTheme: true })(Dashboard));

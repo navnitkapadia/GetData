@@ -17,6 +17,7 @@ const User = require("./models/User");
 var nodemailer = require("nodemailer");
 const { find } = require("lodash");
 let userDetails = {};
+
 var transporter = nodemailer.createTransport({
   service: "gmail",
   auth: {
@@ -24,7 +25,8 @@ var transporter = nodemailer.createTransport({
     pass: config.Password
   }
 });
-sendMail = (to, value) => {
+
+sendMail = (to, value, mobile) => {
   const mailOptions = {
     from: config.fromEmail, // sender address
     to: to, // list of receivers
@@ -35,6 +37,21 @@ sendMail = (to, value) => {
     if (err) console.log(err);
     else console.log("sent");
   });
+if(mobile) {
+  // Twilio Credentials
+  const accountSid = config.accountSid;
+  const authToken = config.authToken;
+  // require the Twilio module and create a REST client
+  const twilio = require('twilio')(accountSid, authToken);
+
+  twilio.messages
+  .create({
+    to: '+91'+mobile,
+    from: config.fromMobile,
+    body: config.Message + value,
+  })
+  .then((message) => console.log(message.sid)).catch((error)=> console.log(error));
+}
 };
 
 // Bodyparser middleware
@@ -59,18 +76,21 @@ client.on("connect", function() {
       for (j = 0; j < user[i].topic.length; j++) {
         let topic = user[i].topic[j];
         let userEmail = user[i].email;
+        let mobile = user[i].mobile;
         let sensorPoints;
         if (user[i].sensorPoints) {
           sensorPoints = user[i].sensorPoints[topic];
         }
         userDetails[topic] = {
           userEmail: userEmail,
+          mobile: mobile,
           sensorPoints: sensorPoints
         };
         client.subscribe(topic);
         console.log("topic",topic);
       }
     }
+    // console.log(userDetails);
   });
   console.log("client has subscribed successfully");
 });
@@ -103,17 +123,25 @@ eventEmitter.on("publish-message", (topic, message) => {
   client.publish(topic, message);
 });
 
-eventEmitter.on("update-sensor-points", (email, sensorPoints) => {
-  let personDetail = find(userDetails, { userEmail: email });
-  personDetail.sensorPoints = sensorPoints;
+eventEmitter.on("update-sensor-points", (email, sensorPoints, topic) => {
+  let personDetail = userDetails[topic];
+  personDetail.sensorPoints = sensorPoints[topic];
+});
+
+
+eventEmitter.on("mobile-number-update", (email, mobile) => {
+  let personDetail = find(userDetails, {userEmail: email})
+  personDetail.mobile = mobile;
 });
 
 client.on("disconnecting", function(e) {
   client = mqtt.connect(config.MqttBroker);
 });
+
 client.on("disconnected", function(e) {
   client = mqtt.connect(config.MqttBroker);
 });
+
 client.on("message", function(topic, message) {
   var messageString = message.toString();
   function IsValidJSONString(str) {
@@ -144,22 +172,22 @@ client.on("message", function(topic, message) {
       let userDetail = userDetails[topic];
       if (data.id === "Sensor 1") {
         if (userDetail.sensorPoints.sensor1 && userDetail.sensorPoints.sensor1 <= data.value) {
-          sendMail(userDetail.userEmail, data.value);
+          sendMail(userDetail.userEmail, data.value, userDetail.mobile);
         }
       }
       if (data.id === "Sensor 2") {
         if (userDetail.sensorPoints.sensor2 && userDetail.sensorPoints.sensor2 <= data.value) {
-          sendMail(userDetail.userEmail, data.value);
+          sendMail(userDetail.userEmail, data.value, userDetail.mobile);
         }
       }
       if (data.id === "Sensor 3") {
         if (userDetail.sensorPoints.sensor3 && userDetail.sensorPoints.sensor3 <= data.value) {
-          sendMail(userDetail.userEmail, data.value);
+          sendMail(userDetail.userEmail, data.value, userDetail.mobile);
         }
       }
       if (data.id === "Sensor 4") {
         if (userDetail.sensorPoints.sensor4 && userDetail.sensorPoints.sensor4 <= data.value) {
-          sendMail(userDetail.userEmail, data.value);
+          sendMail(userDetail.userEmail, data.value, userDetail.mobile);
         }
       }
     }

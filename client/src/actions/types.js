@@ -14,3 +14,4 @@ export const SENSOR_3 = "SENSOR_3";
 export const SENSOR_4 = "SENSOR_4";
 export const SET_TOPIC = "SET_TOPIC";
 export const UPDATE_SENSORS = "UPDATE_SENSORS";
+export const UPDATE_MOBILE = "UPDATE_MOBILE";

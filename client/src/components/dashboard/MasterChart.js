@@ -154,7 +154,7 @@ class MasterChart extends Component {
         if (!sensorId) {
             sensorId = this.state.activeSensor;
         }
-        if(topic) {
+        if(!topic) {
           topic = this.state.topic;
         }
         if (!start) {

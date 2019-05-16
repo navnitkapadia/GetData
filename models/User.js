@@ -27,6 +27,10 @@ const UserSchema = new Schema({
     type: Array,
     required: false
   },
+  mobile: {
+    type: String,
+    required: false
+  },
   date: {
     type: Date,
     default: Date.now

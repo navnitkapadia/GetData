@@ -9,7 +9,8 @@ import {
   SET_TOPIC,
   APPROVE_USER,
   DISAPPROVE_USER,
-  UPDATE_SENSORS
+  UPDATE_SENSORS,
+  UPDATE_MOBILE
 } from "./types";
 
 // Approve User
@@ -137,9 +138,9 @@ export const removeTopicItem = (topicId, id) => dispatch => {
     });
 };
 
-export const updateSensorPoints = (id, sensorPoints) => dispatch => {
+export const updateSensorPoints = (id, sensorPoints, topic) => dispatch => {
   axios
-  .post("/api/users/update-sensor-point", { sensorPoints: sensorPoints, id: id })
+  .post("/api/users/update-sensor-point", { sensorPoints: sensorPoints, id: id, topic: topic })
   .then(res => {
     dispatch({
       type: UPDATE_SENSORS,
@@ -150,6 +151,20 @@ export const updateSensorPoints = (id, sensorPoints) => dispatch => {
     console.log("Error", err);
   });
 }
+
+export const updateMobile = (id, mobile) => dispatch => {
+  axios
+    .post("/api/users/mobile", { id: id, mobile: mobile })
+    .then(res => {
+      dispatch({
+        type: UPDATE_MOBILE,
+        payload: res.data.mobile
+      });
+    })
+    .catch(err => {
+      console.log("Error", err);
+    });
+};
 
 // User loading
 export const setUserLoading = () => {

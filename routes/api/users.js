@@ -122,15 +122,35 @@ router.post("/topic", (req, res) => {
   });
 });
 
+router.post("/mobile", (req, res) => {
+  const id = req.body.id;
+  const mobile = req.body.mobile;
+  User.findById(id, function (err, user) {
+    if (err) {
+      return res.status(400).json(err);
+    }
+    user.mobile = mobile;
+    eventEmitter.emit('mobile-number-update', user.email, user.mobile);    
+    // save the user
+    user.save(function (err) {
+      if (err) {
+        return res.status(400).json(err);
+      }
+      return res.json({ mobile: user.mobile });
+    });
+  });
+});
+
 router.post("/update-sensor-point", (req, res) => {
   const id = req.body.id;
   const sensorPoints = req.body.sensorPoints;
+  const topic = req.body.topic;
   User.findById(id, function (err, user) {
     if (err) {
       return res.status(400).json(err);
     }
     user.sensorPoints = sensorPoints
-    eventEmitter.emit('update-sensor-points', user.email, user.sensorPoints);
+    eventEmitter.emit('update-sensor-points', user.email, user.sensorPoints, topic);
     // save the user
     user.save(function (err) {
       if (err) {
@@ -179,6 +199,7 @@ router.post("/refresh", (req, res) => {
       name: user.name,
       email: user.email,
       role: user.role,
+      mobile: user.mobile,
       topic: user.topic,
       sensorPoints: user.sensorPoints
     }
@@ -236,6 +257,7 @@ router.post("/login", (req, res) => {
           email: user.email,
           role: user.role,
           topic: user.topic,
+          mobile: user.mobile,
           sensorPoints: user.sensorPoints
         };
         // Sign token

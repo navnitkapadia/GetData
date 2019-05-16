@@ -1,4 +1,4 @@
-import { SET_CURRENT_USER, USER_LOADING, SET_TOPIC, UPDATE_SENSORS } from "../actions/types";
+import { SET_CURRENT_USER, USER_LOADING, SET_TOPIC, UPDATE_SENSORS, UPDATE_MOBILE } from "../actions/types";
 
 const isEmpty = require("is-empty");
 
@@ -27,12 +27,19 @@ export default function(state = initialState, action) {
         user: {...state.user, topic: action.payload}
       }
     case UPDATE_SENSORS:
-      console.log(action.payload);
       return {
         ...state,
         user: {
           ...state.user,
           sensorPoints: action.payload
+        }
+      }
+    case UPDATE_MOBILE:
+      return {
+        ...state,
+        user: {
+          ...state.user,
+          mobile: action.payload
         }
       }
     default:
