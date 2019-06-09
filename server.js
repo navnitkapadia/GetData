@@ -170,6 +170,10 @@ client.on("message", function(topic, message) {
         .catch(err => console.log("Error:", err));
       socket.emit("chart", { message: data, topic: topic });
       let userDetail = userDetails[topic];
+      
+      if(!userDetail.sensorPoints){
+        return;
+      }
       if (data.id === "Sensor 1") {
         if (userDetail.sensorPoints.sensor1 && userDetail.sensorPoints.sensor1 <= data.value) {
           sendMail(userDetail.userEmail, data.value, userDetail.mobile);
