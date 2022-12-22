@@ -23,7 +23,7 @@
     "express": "^4.16.4",
     "is-empty": "^1.2.0",
     "isodate": "^0.1.4",
-    "jsonwebtoken": "^8.3.0",
+    "jsonwebtoken": "^9.0.0",
     "lodash": "^4.17.11",
     "mongoose": "^4.4.20",
     "mqtt": "^2.18.8",
